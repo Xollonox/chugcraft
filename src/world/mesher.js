@@ -14,11 +14,12 @@
 import { CHUNK_X, CHUNK_Z, CHUNK_Y, PASS, PASS_COUNT, WAVE } from '../constants.js';
 import {
   BLOCKS, BLOCK_COUNT, IS_OCCLUDER, IS_OPAQUE, RENDER_KIND, PASS_OF, HEIGHT_OF, IS_LIQUID,
-  IS_DOOR, DOOR_PANEL, FLUID,
+  IS_DOOR, DOOR_PANEL, FLUID, IS_POWERED_RAIL, IS_RAIL_ON,
 } from './blocks.js';
 import { shapeBoxes } from './shapes.js';
 import { BIOME_GRASS, BIOME_FOLIAGE } from './worldgen.js';
-import { ATLAS_TILES } from '../engine/atlas.js';
+import { railShape } from './rails.js';
+import { ATLAS_TILES, layoutTiles } from '../engine/atlas.js';
 
 const PX = CHUNK_X + 2;              // padded width / depth
 const PY = CHUNK_Y + 2;
@@ -27,6 +28,19 @@ export const pidx = (x, y, z) => (y + 1) * PX * PX + (z + 1) * PX + (x + 1);
 
 const TILE_UV = 1 / ATLAS_TILES;
 const INSET = 0.02 / (ATLAS_TILES * 16);   // hairline inset kills edge sampling
+
+// Rail pieces pick their tile from the track shape rather than the per-block
+// face table, so they are looked up by name (deterministically, once per
+// worker) instead of by id.
+const RAIL_TILE_CACHE = new Map();
+function railTileIndex(name) {
+  let idx = RAIL_TILE_CACHE.get(name);
+  if (idx === undefined) {
+    idx = layoutTiles().get(name)?.index ?? 0;
+    RAIL_TILE_CACHE.set(name, idx);
+  }
+  return idx;
+}
 
 // --- face tables -----------------------------------------------------------
 // order: +X, -X, +Y, -Y, +Z, -Z
@@ -354,6 +368,23 @@ export function meshChunk(pad, padLight, biomes, cx, cz, tileOf, framesOf, opts 
             flatLight(lx,ly+1,lz);
             quad(passIdx,wx,ly,wz,f,boxCorners(f,...box),tileOf[id*6+f],framesOf[id*6+f],tr,tg,tb,null,vlight);
           }
+        } else if (kind === 8) {
+          // ---- rail: a 1/16 plate; the tile carries the track shape ----
+          const powered = IS_POWERED_RAIL[id] === 1;
+          const shape = railShape(blockAt, lx, ly, lz, powered);
+          let name;
+          if (shape.kind === 'straight') {
+            const axis = shape.axis === 'z' ? 'ns' : 'ew';
+            name = powered ? `powered_rail_${axis}${IS_RAIL_ON[id] ? '_on' : ''}` : `rail_${axis}`;
+          } else {
+            name = `rail_curve_${shape.corner}`;
+          }
+          const tile = railTileIndex(name);
+          const H = 0.0625;
+          flatLight(lx, ly, lz);
+          const corners = [[0, H, 1], [1, H, 1], [1, H, 0], [0, H, 0]];
+          crossQuad(passIdx, wx, ly, wz, corners, tile, 1, tr, tg, tb, vlight, false);
+          crossQuad(passIdx, wx, ly, wz, corners, tile, 1, tr, tg, tb, vlight, true);
         } else if (kind === 2) {
           // ---- cross plant: two diagonal quads, drawn from both sides ----
           flatLight(lx, ly, lz);
