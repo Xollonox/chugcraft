@@ -36,7 +36,7 @@ function item(key, name, o = {}) {
 export const getItem = (key) => ITEMS.get(key) || null;
 
 // ---------------------------------------------------------------------------
-// Block items â€” generated straight from the block registry.
+// Block items — generated straight from the block registry.
 // ---------------------------------------------------------------------------
 for (let id = 1; id < BLOCK_COUNT; id++) {
   const b = BLOCKS[id];
@@ -310,3 +310,5 @@ export function creativeCatalogue() {
 }
 
 item('glistering_melon','Glistering Melon',{icon:'melon_slice',group:'materials',rarity:1});
+// --- 3.3: rideable minecart ---
+item('minecart', 'Minecart', { stack: 1, group: 'tools', desc: 'Place on rails and ride' });

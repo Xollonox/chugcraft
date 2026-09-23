@@ -58,6 +58,10 @@ shaped('torch', 4, ['C', 'S'], { C: '#coals', S: 'stick' }, { category: 'misc' }
 shaped('ladder', 3, ['S S', 'SSS', 'S S'], { S: 'stick' }, { category: 'building' });
 for(const wood of ['oak','birch','spruce'])shaped(`${wood}_door`,3,['##','##','##'],{'#':`${wood}_planks`},{category:'building'});
 shaped('glass_pane',16,['###','###'],{'#':'glass'},{category:'building'});
+// --- 3.3: rails & minecarts ---
+shaped('rail',16,['III','ISI','III'],{I:'iron_ingot',S:'stick'},{category:'misc'});
+shaped('powered_rail',6,['GGG','GSG','GRG'],{G:'gold_ingot',S:'stick',R:'redstone'},{category:'misc'});
+shaped('minecart',1,['I I','III'],{I:'iron_ingot'},{category:'misc'});
 for(const [colour,dye] of [['blue','blue_dye'],['amber','yellow_dye'],['rose','red_dye']]){
  shaped(`${colour}_glass`,8,['GGG','GDG','GGG'],{G:'glass',D:dye},{category:'building'});
  shaped(`${colour}_glass_pane`,16,['###','###'],{'#':`${colour}_glass`},{category:'building'});

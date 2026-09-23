@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // Blocky entity models. Each model is a declarative list of boxes in classic
 // 16-pixels-per-block model space, skinned with runtime-generated pixel art and
 // animated by swinging named parts.
@@ -223,7 +223,7 @@ const FACES = {
 };
 
 // ---------------------------------------------------------------------------
-// Model definitions â€” sizes in model pixels, y measured up from the feet.
+// Model definitions — sizes in model pixels, y measured up from the feet.
 // Front of every model faces +Z; the group is rotated by (yaw + PI).
 // ---------------------------------------------------------------------------
 
@@ -361,6 +361,21 @@ export const MODELS = {
       { n: 'body', size: [16, 12, 16], pos: [0, 7, 0], color: 0x8c3410 },
       { n: 'core', size: [12, 6, 12], pos: [0, 8, 0], color: 0xff8c1a },
       { n: 'top', size: [14, 4, 14], pos: [0, 15, 0], color: 0x6d2408, anim: 'bounce' },
+    ],
+  },
+  minecart: {
+    // A rideable iron cart: shallow hull on four little wheels.
+    height: 0.72, width: 0.9, eye: 0.5,
+    parts: [
+      { n: 'hull', size: [14, 4, 14], pos: [0, 4, 0], color: 0x8f979f },
+      { n: 'wallF', size: [14, 6, 1], pos: [0, 9, 6.5], color: 0x9aa2ac },
+      { n: 'wallB', size: [14, 6, 1], pos: [0, 9, -6.5], color: 0x7d858d },
+      { n: 'wallL', size: [1, 6, 12], pos: [-6.5, 9, 0], color: 0x848c94 },
+      { n: 'wallR', size: [1, 6, 12], pos: [6.5, 9, 0], color: 0x9aa2ac },
+      { n: 'wheelFL', size: [2, 3, 2], pos: [-4.5, 2.5, 4.5], color: 0x4c525a },
+      { n: 'wheelFR', size: [2, 3, 2], pos: [4.5, 2.5, 4.5], color: 0x4c525a },
+      { n: 'wheelBL', size: [2, 3, 2], pos: [-4.5, 2.5, -4.5], color: 0x3f444b },
+      { n: 'wheelBR', size: [2, 3, 2], pos: [4.5, 2.5, -4.5], color: 0x3f444b },
     ],
   },
   squid: {
