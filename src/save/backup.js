@@ -44,7 +44,7 @@ export function validateRecord(rec){
    if(be.furnace){const f=be.furnace;assert(obj(f),'furnace');for(const k of ['input','fuel','output'])stack(f[k]);for(const k of ['burn','burnMax','cook','xp'])assert(Number.isFinite(f[k])&&f[k]>=0,'furnace timer');}
   }
  }
- if(d.items){assert(Array.isArray(d.items)&&d.items.length<=10000,'dropped items');for(const e of d.items){assert(obj(e)&&position([e.x,e.y,e.z]),'entity position');if(e.t==='item')stack(e.s);else if(e.t==='mob'){assert(typeof e.type==='string'&&e.type.length<=32,'mob type');if(e.hp!==undefined)assert(Number.isFinite(e.hp),'mob hp');}}}
+ if(d.items){assert(Array.isArray(d.items)&&d.items.length<=10000,'dropped items');for(const e of d.items){assert(obj(e)&&position([e.x,e.y,e.z]),'entity position');if(e.t==='item')stack(e.s);else if(e.t==='mob'){assert(typeof e.type==='string'&&e.type.length<=32,'mob type');if(e.hp!==undefined)assert(Number.isFinite(e.hp),'mob hp');}else if(e.t==='cart'){for(const k of ['vx','vy','vz'])if(e[k]!==undefined)assert(Number.isFinite(e[k]),'cart velocity');}}}
  return rec;
 }
 export function parseBackup(text){

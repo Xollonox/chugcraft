@@ -1,13 +1,13 @@
 {
   "name": "craftverse",
-  "version": "3.2.0",
-  "description": "ChugCraft 3.2 \u2014 flowing liquids, cottage building and brighter nights",
+  "version": "3.3.0",
+  "description": "ChugCraft 3.3 \u2014 rails, minecarts and powered boosts",
   "type": "module",
   "scripts": {
     "start": "node serve.js",
     "dev": "node serve.js",
-    "test": "node --test tests/core.test.mjs && node --import ./tests/node-three.mjs --test tests/husbandry.test.mjs && node --test tests/building.test.mjs",
-    "test:browser": "node tests/browser-v3.mjs && node tests/browser-v31.mjs && node tests/browser-v32.mjs",
+    "test": "node --test tests/core.test.mjs && node --import ./tests/node-three.mjs --test tests/husbandry.test.mjs && node --test tests/building.test.mjs && node --test tests/rails.test.mjs",
+    "test:browser": "node tests/browser-v3.mjs && node tests/browser-v31.mjs && node tests/browser-v32.mjs && node tests/browser-v33.mjs",
     "test:legacy": "node tests/browser-graphics.mjs && node tests/browser-touch.mjs",
     "test:mobile": "node tests/browser-mobile.mjs",
     "test:building": "node --test tests/building.test.mjs"

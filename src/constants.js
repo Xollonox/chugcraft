@@ -76,6 +76,7 @@ export const ADVANCEMENT_TREE = {
   bench: { parent: 'wood', icon: 'crafting_table' },
   stone_age: { parent: 'bench', icon: 'stone_pickaxe' },
   iron: { parent: 'stone_age', icon: 'iron_ingot' },
+  on_a_rail: { parent: 'iron', icon: 'minecart' },
   diamonds: { parent: 'iron', icon: 'diamond' },
   obsidian: { parent: 'diamonds', icon: 'obsidian' },
   nether: { parent: 'obsidian', icon: 'flint_and_steel' },
@@ -105,4 +106,5 @@ export const ADVANCEMENTS = [
   ['best_friends', 'Best Friends Forever', 'Tame a wolf'],
   ['fishy_business', 'Fishy Business', 'Catch a fish'],
   ['seedy_place', 'A Seedy Place', 'Plant a seed and watch it grow'],
+  ['on_a_rail', 'On a Rail', 'Ride a minecart'],
 ];
