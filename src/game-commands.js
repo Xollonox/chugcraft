@@ -7,7 +7,7 @@
 // ============================================================================
 
 import * as THREE from 'three';
-import { ADVANCEMENTS, CHUNK_Y } from '../constants.js';
+import { ADVANCEMENTS, CHUNK_Y, GAMEMODE } from '../constants.js';
 import { blockByKey, BY_KEY } from './blocks.js';
 import { ITEMS, getItem } from '../crafting/items.js';
 import { BIOME, BIOME_NAMES } from './worldgen.js';
@@ -171,7 +171,7 @@ export const GameCommands = {
         break;
       }
       case 'gamemode':
-        p.gamemode = args[0] === '1' || args[0] === 'creative' ? GAMEMODE_REF.CREATIVE : GAMEMODE_REF.SURVIVAL;
+        p.gamemode = args[0] === '1' || args[0] === 'creative' ? GAMEMODE.CREATIVE : GAMEMODE.SURVIVAL;
         this.hud.chat('Game mode: ' + (p.gamemode ? 'Creative' : 'Survival'));
         break;
       case 'tp': {
@@ -210,7 +210,7 @@ export const GameCommands = {
         break;
       }
       case 'give': {
-        if (p.gamemode !== GAMEMODE_REF.CREATIVE) { this.hud.chat('Creative mode only.'); break; }
+        if (p.gamemode !== GAMEMODE.CREATIVE) { this.hud.chat('Creative mode only.'); break; }
         const key = args[0];
         if (!getItem(key)) { this.hud.chat('Unknown item: ' + key); break; }
         const n = Math.max(1, Math.min(6400, Number(args[1] || 1) || 1));
