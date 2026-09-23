@@ -13,6 +13,8 @@ import { boneMeal } from './ticking.js';
 import { PROFESSIONS } from '../entities/husbandry.js';
 import { Bobber, rollFishingLoot } from '../entities/bobber.js';
 import { tickFurnace, isLit } from '../crafting/smelting.js';
+import { MOBS } from '../entities/mobs.js';
+import { ItemEntity, XpOrb } from '../entities/projectiles.js';
 
 export const GameWorld = {
   // =========================================================================
