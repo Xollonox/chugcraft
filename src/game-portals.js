@@ -305,7 +305,7 @@ export const GamePortals = {
   setupEndFight() {
     if (this.dragonDead) {
       // place the exit portal + trophy for a returning player
-n      this.buildExitPortal();
+      this.buildExitPortal();
       return;
     }
     // Pillar positions must match worldgen exactly.
