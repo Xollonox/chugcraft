@@ -5,13 +5,13 @@
 // Split out of main.js (see game-shell.js); mixed onto Game.prototype at boot.
 // ============================================================================
 
-import { ADVANCEMENTS, CHUNK_Y, DIM, GAMEMODE, NETHER_SCALE } from '../constants.js';
-import { B, BLOCKS, IS_SOLID, BEDS } from './blocks.js';
-import { getItem, makeStack } from '../crafting/items.js';
-import { nearestStronghold } from './structures.js';
-import { ThrownItem, EnderEye } from '../entities/projectiles.js';
-import { EndCrystal, EnderDragon } from '../entities/dragon.js';
-import { WEATHER } from '../engine/weather.js';
+import { ADVANCEMENTS, CHUNK_Y, DIM, GAMEMODE, NETHER_SCALE } from './constants.js';
+import { B, BLOCKS, IS_SOLID, BEDS } from './world/blocks.js';
+import { getItem, makeStack } from './crafting/items.js';
+import { nearestStronghold } from './world/structures.js';
+import { ThrownItem, EnderEye } from './entities/projectiles.js';
+import { EndCrystal, EnderDragon } from './entities/dragon.js';
+import { WEATHER } from './engine/weather.js';
 
 export const GamePortals = {
   // =========================================================================
