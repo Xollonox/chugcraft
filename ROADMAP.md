@@ -6,7 +6,7 @@ The earlier broad Minecraft checklist incorrectly described some existing system
 
 - Multiplayer/server-authoritative world simulation.
 - Redstone networks, pistons, observers, hoppers and automated item transport.
-- Boats, minecarts, rails and rideable mounts (horses). Wolves can be tamed as of 3.1; no other pets yet.
+- Boats and rideable mounts (horses). Rails, powered rails and minecarts shipped in 3.3; wolves can be tamed as of 3.1; no other pets yet.
 - Full enchantment choices, enchanted books, curses, anvil combining and custom names (anvil renaming needs per-item metadata the save format does not carry yet).
 - Vanilla-style timed three-bottle brewing, splash/lingering potions and all effect types.
 - Villager leveling, restocking, raids and village simulation. 3.1 adds five fixed professions with five trades each, not the full vanilla trade tree.
@@ -36,6 +36,13 @@ The earlier broad Minecraft checklist incorrectly described some existing system
 - Performance profiling on low-memory hardware. Graphics presets reduce workload; no universal frame-rate guarantee is made.
 
 These entries are an honest remaining-work list, not features claimed complete in 3.1.
+
+
+## 3.3 status update
+
+Delivered: rails whose straight/curve shape is derived from their neighbours, powered rails switched by an adjacent redstone block (with a self-healing state), rideable minecarts with friction, powered boosts and per-piece direction commitment, cart persistence through saves and backups, an On a Rail advancement, and a 25-check touch + desktop gameplay suite.
+
+Still not implemented: sloped rails, detector and activator rails, chest and furnace carts, carts colliding with mobs/players, and dispenser-style cart deployment. The previous multiplayer, redstone-network, anvil and content-catalogue gaps remain.
 
 
 ## 3.2 status update

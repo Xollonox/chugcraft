@@ -1,4 +1,4 @@
-CHUGCRAFT 3.0
+CHUGCRAFT 3.3
 
 Start with START-HERE.md for installation, mobile controls, enchanting, repairs, brewing and backups.
 
@@ -43,6 +43,8 @@ CONTROLS
   F ..................... swap main hand and off hand
   E ..................... inventory
   Q ..................... drop
+  W / S (riding) ........ roll a minecart forward / brake
+  sneak (riding) ........ hop out of a minecart
   F3 .................... debug overlay
   F5 .................... first / third person
   T or / ................ chat and commands

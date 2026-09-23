@@ -2,10 +2,10 @@
 
 Node.js 20+ is recommended. Gameplay itself needs only a modern WebGL browser.
 
-- `npm test`: 21 core tests, 16 farming/husbandry tests and 22 building/fluid/night-visibility tests. The Node import shim uses the bundled Three.js module, so no gameplay dependency download is needed.
+- `npm test`: 21 core tests, 16 farming/husbandry tests, 22 building/fluid/night-visibility tests and 10 rails/minecart tests. The Node import shim uses the bundled Three.js module, so no gameplay dependency download is needed.
 - `npm start`: start the local server, then open http://localhost:8080.
 - Browser automation: install Playwright separately (`npm install --no-save playwright`, then `npx playwright install chromium`).
-- `npm run test:browser`: 3.0, 3.1 and 3.2 gameplay suites.
+- `npm run test:browser`: 3.0, 3.1, 3.2 and 3.3 gameplay suites. The 3.3 suite plays a touch session and a desktop session (rails, powered boosts, riding, saving and reloading).
 - `node tests/browser-graphics.mjs`: desktop graphics + touch checks.
 - `npm run test:mobile`: a separate legacy mobile subset; not counted twice in the 3.2 report.
 
