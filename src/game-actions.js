@@ -6,17 +6,17 @@
 // ============================================================================
 
 import * as THREE from 'three';
-import { CHUNK_Y, GAMEMODE, PLAYER } from '../constants.js';
+import { CHUNK_Y, GAMEMODE, PLAYER } from './constants.js';
 import {
   B, BLOCKS, IS_SOLID, IS_DOOR, DOORS, DOOR_FAMILY, BEDS, IS_BED, HINGES,
-} from './blocks.js';
-import { isRailId, isPoweredRailId, poweredRailIdFor } from './rails.js';
-import { getItem } from '../crafting/items.js';
-import { materialSound } from '../engine/audio.js';
-import { canPlantOn, soilFor } from './ticking.js';
-import { Minecart } from '../entities/minecart.js';
-import { Arrow, PrimedTnt } from '../entities/projectiles.js';
-import { newFurnace } from '../crafting/smelting.js';
+} from './world/blocks.js';
+import { isRailId, isPoweredRailId, poweredRailIdFor } from './world/rails.js';
+import { getItem } from './crafting/items.js';
+import { materialSound } from './engine/audio.js';
+import { canPlantOn, soilFor } from './world/ticking.js';
+import { Minecart } from './entities/minecart.js';
+import { Arrow, PrimedTnt } from './entities/projectiles.js';
+import { newFurnace } from './crafting/smelting.js';
 
 export const GameActions = {
   fillBottle() {
