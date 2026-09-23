@@ -74,6 +74,9 @@ export const B = {
   LANTERN:173, MOSAIC:174, BASALT_TILES:175, BLUE_GLASS:176, AMBER_GLASS:177, ROSE_GLASS:178,
   // --- 3.1: growth stages and saplings (mature stages keep their old ids) ---
   WHEAT_0: 134, WHEAT_1: 135, WHEAT_2: 136, WART_0: 137, WART_1: 138, OAK_SAPLING: 139,
+  // --- 3.3: rails. Shape is derived from neighbours, so a whole track costs
+  // three ids: plain rail, powered rail, and its switched-on state.
+  RAIL: 179, POWERED_RAIL: 180, POWERED_RAIL_ON: 181,
 };
 
 export const BLOCK_COUNT = 192;
@@ -597,6 +600,31 @@ def(B.MOSAIC,'mosaic','Sunburst Mosaic',{tex:'mosaic',hardness:1.5,tool:'pickaxe
 def(B.BASALT_TILES,'basalt_tiles','Midnight Basalt Tiles',{tex:'basalt_tiles',hardness:2,tool:'pickaxe',tier:TIER.WOOD});
 for(const [id,key,name] of [[176,'blue_glass','Ocean Blue Glass'],[177,'amber_glass','Amber Glass'],[178,'rose_glass','Rose Glass']])
  def(id,key,name,{tex:key,pass:PASS.LIQUID,opaque:false,occludes:false,hardness:.3,drop:key});
+
+// --- 3.3 rails --------------------------------------------------------------
+// Rails are flat 1/16 plates with no collision: you walk straight over them
+// and a minecart rolls along them. Which way a piece points (straight or a
+// quarter turn) is derived from its neighbours at mesh time, so a whole track
+// costs almost nothing in ids. A powered rail flips to its ON id while a
+// redstone block sits beside it — see world/rails.js for the shared logic.
+const railDef = (id, key, name, o = {}) => def(id, key, name, {
+  tex: o.tex ?? 'rail_ns', render: 'rail', pass: PASS.CUTOUT,
+  solid: false, opaque: false, occludes: false,
+  hardness: 0.6, tool: 'pickaxe', tier: TIER.HAND, ...o,
+});
+railDef(B.RAIL, 'rail', 'Rail');
+railDef(B.POWERED_RAIL, 'powered_rail', 'Powered Rail', { tex: 'powered_rail_ns' });
+railDef(B.POWERED_RAIL_ON, 'powered_rail_on', 'Powered Rail', {
+  tex: 'powered_rail_ns_on', noItem: true, itemKey: 'powered_rail',
+  drop: 'powered_rail', emit: 3,
+});
+export const IS_RAIL = new Uint8Array(BLOCK_COUNT);
+export const IS_POWERED_RAIL = new Uint8Array(BLOCK_COUNT);
+export const IS_RAIL_ON = new Uint8Array(BLOCK_COUNT);
+for (const id of [B.RAIL, B.POWERED_RAIL, B.POWERED_RAIL_ON]) IS_RAIL[id] = 1;
+IS_POWERED_RAIL[B.POWERED_RAIL] = 1;
+IS_POWERED_RAIL[B.POWERED_RAIL_ON] = 1;
+IS_RAIL_ON[B.POWERED_RAIL_ON] = 1;
 // Fill any unused ids with air so lookups never return undefined.
 for (let i = 0; i < BLOCK_COUNT; i++) if (!BLOCKS[i]) BLOCKS[i] = BLOCKS[0];
 
@@ -623,7 +651,7 @@ export const PASS_OF = new Uint8Array(BLOCK_COUNT);
 export const HEIGHT_OF = new Float32Array(BLOCK_COUNT);
 export const REPLACEABLE = new Uint8Array(BLOCK_COUNT);
 
-const RENDER_IDS = { none: 0, cube: 1, cross: 2, liquid: 3, torch: 4, layer: 5, door: 6, shape: 7 };
+const RENDER_IDS = { none: 0, cube: 1, cross: 2, liquid: 3, torch: 4, layer: 5, door: 6, shape: 7, rail: 8 };
 for (let i = 0; i < BLOCK_COUNT; i++) {
   const b = BLOCKS[i];
   IS_OPAQUE[i] = b.opaque ? 1 : 0;
@@ -640,9 +668,15 @@ for (let i = 0; i < BLOCK_COUNT; i++) {
 // AIR must never be treated as an occluder even though its render kind is none.
 IS_OCCLUDER[0] = 0; IS_OPAQUE[0] = 0; IS_SOLID[0] = 0;
 
+/** Tiles the mesher picks per piece (rail shapes) rather than per block id. */
+export const EXTRA_TILES = [
+  'rail_ns', 'rail_ew', 'rail_curve_ne', 'rail_curve_nw', 'rail_curve_se', 'rail_curve_sw',
+  'powered_rail_ns', 'powered_rail_ew', 'powered_rail_ns_on', 'powered_rail_ew_on',
+];
+
 /** Every distinct tile name referenced by the registry, for atlas packing. */
 export function allTileNames() {
-  const set = new Set();
+  const set = new Set(EXTRA_TILES);
   for (let i = 1; i < BLOCK_COUNT; i++) {
     const b = BLOCKS[i];
     if (b.id !== i) continue;

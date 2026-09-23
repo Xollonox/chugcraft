@@ -47,7 +47,7 @@ function isoBlockIcon(blockId) {
   ctx.imageSmoothingEnabled = false;
 
   const kind = b.render;
-  if (kind === 'cross' || kind === 'torch' || kind === 'none') {
+  if (kind === 'cross' || kind === 'torch' || kind === 'none' || kind === 'rail') {
     const flat = surfaceToCanvas(tilePixels(b.tex[4]));
     ctx.drawImage(flat, 0, 0, TILE, TILE, 0, 0, ICON, ICON);
     return cv.toDataURL();
@@ -456,6 +456,17 @@ function paintBottle(p,color) {
   p.set(5,8,0xffffff);p.set(5,9,0xffffff);
 }
 ITEM_PAINTERS.glass_bottle=p=>paintBottle(p,0x587986);
+ITEM_PAINTERS.minecart = (p) => {
+  // Iron cart in three-quarter view: hull, bright rim and two wheels.
+  p.clear();
+  const iron = 0x9aa2ac, dark = 0x5f6770, hi = 0xcdd5dc;
+  for (let y = 5; y < 11; y++) for (let x = 3; x < 13; x++) p.set(x, y, (x * 2 + y) % 9 === 0 ? dark : iron);
+  p.frame(3, 5, 10, 6, dark);
+  for (let x = 4; x < 12; x++) p.set(x, 5, hi);
+  p.set(3, 11, dark); p.set(12, 11, dark);
+  p.set(4, 12, dark); p.set(11, 12, dark);
+  p.set(4, 13, 0x3d4248); p.set(11, 13, 0x3d4248);
+};
 
 export function buildItemIcons() {
   if (ICONS) return ICONS;
