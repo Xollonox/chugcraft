@@ -4,6 +4,14 @@
 // Owns the state machine (menu -> loading -> playing -> paused/dead/victory),
 // the fixed-ish game loop, all block interaction (mining, placing, using), the
 // three dimensions and the portals between them, saving, and the victory flow.
+//
+// The Game class grew past 3,000 lines, so its behaviour now lives in seven
+// behaviour modules that are mixed onto Game.prototype right after the class:
+// game-shell (save/quit/screens), game-loop (frame loop/camera/hand),
+// game-interact (aim/mine/use), game-actions (place/doors/minecarts),
+// game-world (drops/interaction/ambience), game-portals (dimensions/End/sleep)
+// and game-commands (chat). Every method body is unchanged; only its home
+// file moved.
 // ============================================================================
 
 import * as THREE from 'three';
@@ -55,10 +63,13 @@ import { AdvancementScreen } from './ui/advancements.js';
 import { installPixelFont } from './ui/pixelfont.js';
 import { parseSeed } from './engine/noise.js';
 import * as DB from './save/db.js';
-
-const CRACK_STAGES = 10;
-/** Seconds between swings while the attack button is held down. */
-const ATTACK_REPEAT = 0.45;
+import { GameShell } from './game-shell.js';
+import { GameLoop } from './game-loop.js';
+import { GameInteract } from './game-interact.js';
+import { GameActions } from './game-actions.js';
+import { GameWorld } from './game-world.js';
+import { GamePortals } from './game-portals.js';
+import { GameCommands, GAMERULES } from './game-commands.js';
 
 /**
  * Hand-picked backdrops for the title screen. Each is a throwaway world of its
@@ -77,56 +88,6 @@ const PANORAMAS = [
   { seed: 'highlands', x: 200, z: 500, radius: 26, height: 8, pitch: -0.14, time: 0.23 },
   { seed: 'driftwood', x: -200, z: 500, radius: 24, height: 9, pitch: -0.16, time: 0.14 },
   { seed: 'craftverse', x: 400, z: 0, radius: 24, height: 8, pitch: -0.14, time: 0.27 },
-];
-
-/**
- * Command table, used both for `/help` and for chat autocomplete. `args` lists
- * the completions for each positional argument: an array of literals, the
- * marker '<item>' for the item registry, or null for free text.
- */
-const TIME_WORDS = ['day', 'noon', 'sunset', 'night', 'midnight', 'sunrise', 'set'];
-const DIFFICULTY_WORDS = ['peaceful', 'easy', 'normal', 'hard'];
-const LOCATE_TARGETS = ['stronghold', 'village', 'fortress', 'temple', 'spawn'];
-const KILL_TARGETS = ['hostile', 'passive', 'items', 'all'];
-export const GAMERULES = {
-  keepInventory: false,
-  doDaylightCycle: true,
-  doWeatherCycle: true,
-  doMobSpawning: true,
-  mobGriefing: true,
-  randomTickSpeed: true,   // crops grow, saplings sprout, farmland dries
-};
-const GAMERULE_NAMES = Object.keys(GAMERULES);
-const BOOL_WORDS = ['true', 'false'];
-
-const COMMANDS = [
-  { name: 'help', desc: 'list every command', args: [] },
-  { name: 'time', desc: 'change the time of day', args: [TIME_WORDS, TIME_WORDS.slice(0, 6)] },
-  { name: 'weather', desc: 'force the weather', args: [['clear', 'rain', 'thunder']] },
-  { name: 'gamemode', desc: 'switch survival/creative', args: [['survival', 'creative', '0', '1']] },
-  { name: 'difficulty', desc: 'set the difficulty', args: [DIFFICULTY_WORDS] },
-  { name: 'give', desc: 'grant an item (creative)', args: ['<item>', null] },
-  { name: 'clear', desc: 'empty your inventory, or one item from it', args: ['<item>'] },
-  { name: 'summon', desc: 'spawn a mob in front of you', args: ['<mob>', null] },
-  { name: 'kill', desc: 'kill yourself', args: [] },
-  { name: 'killall', desc: 'remove nearby entities', args: [KILL_TARGETS] },
-  { name: 'heal', desc: 'refill health and hunger', args: [] },
-  { name: 'feed', desc: 'refill hunger', args: [] },
-  { name: 'xp', desc: 'grant experience points', args: [null] },
-  { name: 'setblock', desc: 'replace the block you are looking at', args: ['<block>'] },
-  { name: 'fill', desc: 'fill a cube around you (radius up to 12)', args: ['<block>', null] },
-  { name: 'tp', desc: 'teleport to x y z, or to spawn', args: [['spawn'], null, null] },
-  { name: 'spawnpoint', desc: 'set your respawn point here', args: [] },
-  { name: 'spawn', desc: 'return to your spawn point', args: [] },
-  { name: 'locate', desc: 'find the nearest structure', args: [LOCATE_TARGETS] },
-  { name: 'stronghold', desc: 'locate the nearest stronghold', args: [] },
-  { name: 'gamerule', desc: 'read or change a game rule', args: [GAMERULE_NAMES, BOOL_WORDS] },
-  { name: 'pos', desc: 'show your coordinates and biome', args: [] },
-  { name: 'seed', desc: 'show the world seed', args: [] },
-  { name: 'advancements', desc: 'list your progress', args: [] },
-  { name: 'name', desc: 'set the name on your tag', args: [null] },
-  { name: 'say', desc: 'send a chat message', args: [null] },
-  { name: 'me', desc: 'send an action message', args: [null] },
 ];
 
 class Game {
@@ -646,155 +607,24 @@ class Game {
       inv.add(k, k.includes('_') && getItem(k)?.tool ? 1 : 64);
     }
   }
+}
 
-  // =========================================================================
-  // Save / quit
-  // =========================================================================
-  async save() {
-    if (!this.saveMeta || !this.world) return;
-    this.world.flushSets();
-    const items = [];
-    this.entities.each((e) => { const s = e.serialize?.(); if (s) items.push(s); });
-    // Include transient container stacks in the saved snapshot without closing
-    // the player's UI or mutating their live bag during an autosave.
-    const playerSnapshot=this.player.serialize();
-    if(this.containers.open){
-      const temp=new Inventory();temp.deserialize(playerSnapshot.inventory);
-      const extras=[this.containers.cursor];
-      if(this.containers.type==='crafting') extras.push(...(this.containers._grid||[]));
-      for(const stack of extras){if(!stack)continue;const left=temp.addStack(stack);
-        if(left)items.push({t:'item',x:this.player.pos.x,y:this.player.pos.y+0.6,z:this.player.pos.z,s:{...stack,count:left},life:300});
-      }
-      playerSnapshot.inventory=temp.serialize();
-    }
-    const rec = {
-      ...this.saveMeta,
-      lastPlayed: Date.now(),
-      won: this.won,
-      playtime: this.playtime,
-      data: {
-        dim: this.world.dim,
-        time: this.time,
-        world: this.world.serialize(),
-        player: playerSnapshot,
-        stats: this.stats,
-        advancements: this.advancements,
-        gamerules: this.gamerules,
-        weather: this.weather.serialize(),
-        dragonDead: this.dragonDead,
-        dragonHealth: this.dragon ? this.dragon.health : this.dragonHealth,
-        crystalsDestroyed: this.crystalsDestroyed,
-        portals: this.portalCache,
-        lastDeath:this.lastDeath||null,
-        items,
-      },
-    };
-    try { await DB.saveWorld(rec); return true; }
-    catch (e) {
-      console.warn('[save] failed', e);
-      this.toast('Save failed','Storage may be full or blocked. Keep this tab open.');
-      return false;
-    }
-  }
+// The rest of the Game behaviour lives in modules mixed onto the prototype:
+// game-shell (save/quit/screens), game-loop (frame loop/camera/hand),
+// game-interact (aim/mine/use), game-actions (place/doors/minecarts),
+// game-world (drops/interaction/ambience), game-portals (dimensions/End/sleep)
+// and game-commands (chat).
+Object.assign(Game.prototype, GameShell, GameLoop, GameInteract, GameActions, GameWorld, GamePortals, GameCommands);
 
-  async quitToTitle() {
-    if (this.state !== 'menu' && !(await this.save())) return;
-    this.audio.stopAllLoops();
-    this.input.exitLock();
-    this.hud.show(false);
-    this.containers.close();
-    this.advancementScreen.hide();
-    if (this.sleep) this.endSleep(false);
-    this.hud.setFade(0);
-    this.state = 'menu';
-    this.player = null;
-    this.saveMeta = null;
-    this.startPanorama();
-    this.menus.show('title');
-  }
+export { GAMERULES };
 
-  pause() {
-    if (this.state !== 'playing') return;
-    this.state = 'paused';
-    this.input.enabled = false;
-    this.input.exitLock();
-    this._optionsFrom = 'pause';
-    this.menus.show('pause');
-    this.save();
-  }
+// ---------------------------------------------------------------------------
+const game = new Game();
+window.chugcraft = game;
+// Kept as an alias so older bookmarks, dev consoles and test scripts that
+// reach for window.craftverse still find the game after the rename.
+window.craftverse = game;
+game.boot().catch((e) => { console.error(e); game.fatal(e); });
 
-  resume() {
-    if (this.state !== 'paused') return;
-    this.state = 'playing';
-    this.input.enabled = true;
-    this.menus.hideAll();
-    this.input.requestLock();
-  }
-
-  /**
-   * Chat releases the pointer but must not pause the game. Held keys are
-   * dropped so the player doesn't keep walking while typing.
-   */
-  openChat(initial = '') {
-    if (this.hud.chatOpen || this.state !== 'playing') return;
-    // Like the inventory, chat keeps the pointer lock — typing works fine
-    // under it, and dropping the lock is what summoned the browser's banner.
-    // Disabling input is enough to stop the mouse turning the camera.
-    this.input.enabled = false;
-    this.input.down.clear();
-    this.hud.openChat(initial);
-  }
-
-  closeChat(submit) {
-    if (!this.hud.chatOpen) return;
-    const text = this.hud.chatInput.value;
-    this.hud.closeChat();
-    this.input.enabled = true;
-    this.input.down.clear();
-    this.input.takeRawDelta();               // discard drift from while typing
-    if (submit && text.trim()) this.runCommand(text);
-    if (this.state === 'playing' && !this.input.locked) this.input.requestLock();
-  }
-
-  /**
-   * The advancements tree. It keeps the pointer lock like the other screens,
-   * and the real cursor is only needed for the Done button — Escape and the
-   * advancements key both close it.
-   */
-  toggleAdvancements() {
-    if (this.advancementScreen.open) { this.advancementScreen.hide(); return; }
-    this.advancementScreen.show();
-    this.input.enabled = false;
-    this.input.down.clear();
-    this.input.exitLock();
-  }
-
-  onAdvancementsClosed() {
-    this.input.enabled = true;
-    this.input.down.clear();
-    if (this.state === 'playing') this.input.requestLock();
-  }
-
-  openContainer(type, data) {
-    // The pointer lock is deliberately kept: releasing it made Chrome show its
-    // "press Esc to show your cursor" banner every single time the inventory
-    // opened. The screen draws its own cursor instead.
-    this.containers.show(type, data);
-    this.input.enabled = false;
-    // Drop every held key. Otherwise a Shift or Ctrl still logically "down"
-    // when the screen opens leaks straight back into sneak/sprint on close.
-    this.input.down.clear();
-    this.input.sprintToggle = false;
-    this.player.sneaking = false;
-    this.player.sprinting = false;
-  }
-
-  onContainerClosed() {
-    this.input.enabled = true;
-    this.input.down.clear();
-    this.input.sprintToggle = false;
-    // Only ask for the lock back if it was actually lost (Escape forces the
-    // browser to release it). Re-requesting a lock we still hold would show
-    // the banner again for nothing.
-    if (this.state === 'playing' && !this.input.locked) this.input.requestLock();
-  }
+export default game;
+export { Game, Mob, MOBS, BIOME, DIFFICULTY, explode, TOOL_MATERIALS, blockByKey };
