@@ -7,13 +7,13 @@
 // ============================================================================
 
 import * as THREE from 'three';
-import { ADVANCEMENTS, CHUNK_Y, GAMEMODE } from '../constants.js';
-import { blockByKey, BY_KEY } from './blocks.js';
-import { ITEMS, getItem } from '../crafting/items.js';
-import { BIOME, BIOME_NAMES } from './worldgen.js';
-import { nearestStronghold } from './structures.js';
-import { Mob, MOBS } from '../entities/mobs.js';
-import { ItemEntity, XpOrb } from '../entities/projectiles.js';
+import { ADVANCEMENTS, CHUNK_Y, GAMEMODE } from './constants.js';
+import { blockByKey, BY_KEY } from './world/blocks.js';
+import { ITEMS, getItem } from './crafting/items.js';
+import { BIOME, BIOME_NAMES } from './world/worldgen.js';
+import { nearestStronghold } from './world/structures.js';
+import { Mob, MOBS } from './entities/mobs.js';
+import { ItemEntity, XpOrb } from './entities/projectiles.js';
 
 /**
  * Command table, used both for `/help` and for chat autocomplete. `args` lists

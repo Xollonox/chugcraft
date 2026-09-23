@@ -5,16 +5,16 @@
 // Split out of main.js (see game-shell.js); mixed onto Game.prototype at boot.
 // ============================================================================
 
-import { DIM, GAMEMODE } from '../constants.js';
-import { B, BLOCKS, isWater, isLava } from './blocks.js';
-import { getItem } from '../crafting/items.js';
-import { materialSound } from '../engine/audio.js';
-import { boneMeal } from './ticking.js';
-import { PROFESSIONS } from '../entities/husbandry.js';
-import { Bobber, rollFishingLoot } from '../entities/bobber.js';
-import { tickFurnace, isLit } from '../crafting/smelting.js';
-import { MOBS } from '../entities/mobs.js';
-import { ItemEntity, XpOrb } from '../entities/projectiles.js';
+import { DIM, GAMEMODE } from './constants.js';
+import { B, BLOCKS, isWater, isLava } from './world/blocks.js';
+import { getItem } from './crafting/items.js';
+import { materialSound } from './engine/audio.js';
+import { boneMeal } from './world/ticking.js';
+import { PROFESSIONS } from './entities/husbandry.js';
+import { Bobber, rollFishingLoot } from './entities/bobber.js';
+import { tickFurnace, isLit } from './crafting/smelting.js';
+import { MOBS } from './entities/mobs.js';
+import { ItemEntity, XpOrb } from './entities/projectiles.js';
 
 export const GameWorld = {
   // =========================================================================
