@@ -130,7 +130,9 @@ test('random ticker only touches loaded columns and reports changes', () => {
   for (let x = -5; x < 5; x++) for (let z = -5; z < 5; z++) { w.setBlock(x, 64, z, B.FARMLAND); w.setBlock(x, 65, z, B.WHEAT_0); w.setBlock(x, 63, z, B.WATER); }
   const game = { world: w, player: { pos: { x: 0, y: 65, z: 0 } }, afterBlockChange() {}, unlockAdvancement() {} };
   const t = new BlockTicker(game, 400000);
-  t.update(0.1);
+  // Random sampling makes a single update a coin flip; keep ticking until the
+  // ticker has demonstrably changed something (it always will within a few).
+  for (let i = 0; i < 10 && t.changed === 0; i++) t.update(0.1);
   assert.ok(t.changed > 0);
   for (let x = -5; x < 0; x++) for (let z = -5; z < 5; z++) assert.equal(w.getBlock(x, 65, z), B.WHEAT_0, 'unloaded side untouched');
 });
