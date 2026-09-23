@@ -4,17 +4,13 @@
 // Split out of main.js (see game-shell.js); mixed onto Game.prototype at boot.
 // ============================================================================
 
-import { CHUNK_Y, PLAYER } from '../constants.js';
+import { CHUNK_Y, GAMEMODE, PLAYER } from '../constants.js';
 import {
-  B, BLOCKS, IS_SOLID, IS_DOOR, IS_BED, BEDS, DOORS, DOOR_FAMILY, HINGES, isWater, isLava,
+  B, BLOCKS, IS_SOLID, IS_DOOR, IS_BED, isWater, isLava,
 } from './blocks.js';
-import { getItem } from '../crafting/items.js';
+import { getItem, makeStack } from '../crafting/items.js';
 import { materialSound } from '../engine/audio.js';
 import { canTill } from './ticking.js';
-import {
-  ItemEntity, Arrow, PrimedTnt,
-} from '../entities/projectiles.js';
-import { newFurnace } from '../crafting/smelting.js';
 
 const CRACK_STAGES = 10;
 /** Seconds between swings while the attack button is held down. */
