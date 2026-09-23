@@ -1,10 +1,22 @@
-# ChugCraft 3.2 — Flow, Build & Moonlight
+# ChugCraft 3.3 — Rails & Minecarts
 
 **Play online:** [xollonox.github.io/chugcraft](https://xollonox.github.io/chugcraft/) — runs right in the browser, nothing to install.
 
 ![ChugCraft — Moonlit Cottage showcase](screenshots/cottage-day.png)
 
 An original single-player browser voxel game. This is a more complete playable release, not Minecraft or full Minecraft feature parity.
+
+## New in 3.3 — rails, powered boosts and rideable minecarts
+
+Lay a track, roll a cart along it, and ride it across the world.
+
+- **Rails** (6 iron ingots + 1 stick → 16): flat plates you walk straight over. A minecart rolls along them, and the track shapes itself — a piece laid in a line is straight, an elbow becomes a quarter-turn curve, and tees/crossings keep running straight through.
+- **Powered rails** (6 gold ingots + 1 stick + 1 redstone → 6): a powered rail with a **redstone block** beside it switches on — glowing gold with red sparks — and shoves carts along at speed. Move the redstone block away and it goes quiet. Powered rails never curve.
+- **Minecarts** (5 iron ingots): place one on a rail (or on the ground) and USE / right-click to ride. **W / joystick** rolls forward, **S** brakes, **sneak** hops out.
+- Carts follow curves without derailing, coast with rolling friction, stop against walls, gain speed when you hit them, top out at 8 m/s, and are destroyed by lava. They save with your world and survive backups.
+- New advancement: **On a Rail**.
+
+Rails are deliberately flat in this release: no sloped rails, detector rails, chest carts or furnace carts yet.
 
 ## New in 3.2 — and nights are no longer pitch black
 
@@ -45,8 +57,9 @@ Landscape is recommended. Portrait controls also fit. Start with **Options → G
 - **SWAP:** swap main and offhand items.
 - **Inventory / Q / II:** inventory, drop one held item, pause.
 - **Hotbar:** tap any of the nine slots.
+- **Riding a minecart:** USE to board, push the joystick forward to roll, ▼ (sneak) to hop out.
 
-On desktop: WASD move, Space jump, Shift sneak, Ctrl sprint, left mouse mine/attack, right mouse use, 1–9 or wheel hotbar, E inventory, F swap hands, Q drop, Esc pause. Bindings remain configurable.
+On desktop: WASD move, Space jump, Shift sneak, Ctrl sprint, left mouse mine/attack, right mouse use, 1–9 or wheel hotbar, E inventory, F swap hands, Q drop, Esc pause. While riding a minecart, W rolls, S brakes, and Shift hops out. Bindings remain configurable.
 
 ## New survival progression
 

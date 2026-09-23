@@ -1,6 +1,10 @@
-# ChugCraft 3.2 — Flow, Build & Moonlight
+# ChugCraft 3.3 — Rails & Minecarts
 
 An original single-player browser voxel game. This is a more complete playable release, not Minecraft or full Minecraft feature parity.
+
+## New in 3.3 — rails & minecarts
+
+Craft rails (6 iron ingots + 1 stick = 16), powered rails (6 gold ingots + 1 stick + 1 redstone = 6) and a minecart (5 iron ingots). Lay a line of rails — the track shapes itself, straight or curve, and you can walk straight over it. A powered rail next to a redstone block glows and boosts carts; move the block away and it goes quiet. Place the minecart on the rail, then USE / right-click to ride: W or the joystick rolls forward, S brakes, sneak hops out. Carts save with the world and survive backups.
 
 ## New in 3.2 — and nights are no longer pitch black
 
@@ -42,7 +46,7 @@ Landscape is recommended. Portrait controls also fit. Start with **Options → G
 - **Inventory / Q / II:** inventory, drop one held item, pause.
 - **Hotbar:** tap any of the nine slots.
 
-On desktop: WASD move, Space jump, Shift sneak, Ctrl sprint, left mouse mine/attack, right mouse use, 1–9 or wheel hotbar, E inventory, F swap hands, Q drop, Esc pause. Bindings remain configurable.
+On desktop: WASD move, Space jump, Shift sneak, Ctrl sprint, left mouse mine/attack, right mouse use, 1–9 or wheel hotbar, E inventory, F swap hands, Q drop, Esc pause. Riding a minecart: W rolls, S brakes, Shift hops out. Bindings remain configurable.
 
 ## New survival progression
 
