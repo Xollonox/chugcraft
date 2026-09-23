@@ -1,0 +1,179 @@
+{
+  "results": [
+    {
+      "name": "auto mobile mode",
+      "pass": true
+    },
+    {
+      "name": "native touch selects hotbar 1",
+      "pass": true
+    },
+    {
+      "name": "native touch selects hotbar 2",
+      "pass": true
+    },
+    {
+      "name": "native touch selects hotbar 3",
+      "pass": true
+    },
+    {
+      "name": "native touch selects hotbar 4",
+      "pass": true
+    },
+    {
+      "name": "native touch selects hotbar 5",
+      "pass": true
+    },
+    {
+      "name": "native touch selects hotbar 6",
+      "pass": true
+    },
+    {
+      "name": "native touch selects hotbar 7",
+      "pass": true
+    },
+    {
+      "name": "native touch selects hotbar 8",
+      "pass": true
+    },
+    {
+      "name": "native touch selects hotbar 9",
+      "pass": true
+    },
+    {
+      "name": "touchcancel does not place or attack",
+      "pass": true
+    },
+    {
+      "name": "mobile USE eats food after holding",
+      "pass": true
+    },
+    {
+      "name": "mobile potion drinking applies timed effect and returns bottle",
+      "pass": true
+    },
+    {
+      "name": "active potion duration appears on HUD",
+      "pass": true
+    },
+    {
+      "name": "healing restores four health",
+      "pass": true
+    },
+    {
+      "name": "fire resistance blocks lava/fire damage",
+      "pass": true
+    },
+    {
+      "name": "regeneration heals then expires",
+      "pass": true
+    },
+    {
+      "name": "mobile USE draws and releases bow",
+      "pass": true
+    },
+    {
+      "name": "dedicated mobile HIT attacks aimed mob",
+      "pass": true
+    },
+    {
+      "name": "pause releases held touch actions",
+      "pass": true
+    },
+    {
+      "name": "placed enchant station opens workshop",
+      "pass": true
+    },
+    {
+      "name": "native mobile enchant transaction works",
+      "pass": true
+    },
+    {
+      "name": "placed anvil station opens workshop",
+      "pass": true
+    },
+    {
+      "name": "native mobile anvil transaction works",
+      "pass": true
+    },
+    {
+      "name": "placed brew station opens workshop",
+      "pass": true
+    },
+    {
+      "name": "native mobile brew transaction works",
+      "pass": true
+    },
+    {
+      "name": "full-bag container close spills cursor and crafting stacks",
+      "pass": true
+    },
+    {
+      "name": "autosave snapshots temporary inventory without closing UI",
+      "pass": true
+    },
+    {
+      "name": "real generated world passes backup validator",
+      "pass": true
+    },
+    {
+      "name": "pause menu downloads a real world backup",
+      "pass": true
+    },
+    {
+      "name": "import creates a separate world without overwriting original",
+      "pass": true
+    },
+    {
+      "name": "save/reload preserves inventory and potion effects",
+      "pass": true
+    },
+    {
+      "name": "dropped enchanted tool survives save/reload",
+      "pass": true
+    },
+    {
+      "name": "dead save reload shows death screen",
+      "pass": true
+    },
+    {
+      "name": "pre-v3 save shape loads with safe defaults",
+      "pass": true
+    },
+    {
+      "name": "portrait hotbar and action buttons fit and receive touches",
+      "pass": true
+    },
+    {
+      "name": "20-cycle mobile menu/input soak remains playable without stuck attack",
+      "pass": true
+    },
+    {
+      "name": "Use action opens nearby villager trading screen",
+      "pass": true
+    },
+    {
+      "name": "villager trade exchanges items from actual UI",
+      "pass": true
+    },
+    {
+      "name": "solid wall blocks entity targeting",
+      "pass": true
+    },
+    {
+      "name": "zero browser runtime errors: ",
+      "pass": true
+    },
+    {
+      "name": "no missing textures/icons: ",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "warnings": [
+    "[.WebGL-0x344c00689500]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x344c00689500]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x344c00689500]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x344c00689500]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ]
+}

@@ -1,0 +1,756 @@
+/* ==========================================================================
+   ChugCraft UI â€” everything outside the 3D viewport is plain DOM so it scales
+   crisply at any window size. Colours/metrics deliberately echo the blocky,
+   high-contrast look of classic voxel survival games.
+   ========================================================================== */
+
+:root {
+  --ui: 2px;                       /* base pixel unit, scaled by JS on resize */
+  --font: "Lucida Console", "DejaVu Sans Mono", "Consolas", monospace;
+  --btn-face: #6e6e6e;
+  --btn-face-hi: #8a8a8a;
+  --btn-top: #a4a4a4;
+  --btn-bot: #2e2e2e;
+  --panel: #c6c6c6;
+  --panel-dark: #8b8b8b;
+  --slot: #8b8b8b;
+  --slot-dark: #373737;
+  --text: #ffffff;
+  --text-dim: #a0a0a0;
+  --shadow: #3f3f3f;
+  --accent: #ffff55;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #000;
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+canvas#viewport { position: fixed; inset: 0; display: block; width: 100%; height: 100%; }
+
+.hidden { display: none !important; }
+
+/* No scrollbars anywhere in the game's own panels — they read as browser
+   chrome sitting on top of the art. Lists still scroll with the wheel. */
+#container-root *::-webkit-scrollbar, .world-list::-webkit-scrollbar,
+.options-grid::-webkit-scrollbar, .controls-grid::-webkit-scrollbar,
+.info-body::-webkit-scrollbar { width: 0; height: 0; }
+#container-root *, .world-list, .options-grid, .controls-grid, .info-body {
+  scrollbar-width: none;
+}
+
+img, canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+
+/* ---------- shared text ---------- */
+.shadowed, .mc-btn, .screen-title, .splash, #xp-level, .tooltip-title, #boss-name {
+  text-shadow: calc(var(--ui) * 1) calc(var(--ui) * 1) 0 var(--shadow);
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+.mc-btn {
+  position: relative;
+  font-family: var(--font);
+  font-size: calc(var(--ui) * 8);
+  letter-spacing: 0.02em;
+  color: #e0e0e0;
+  background: linear-gradient(#8b8b8b, #6a6a6a 45%, #5c5c5c);
+  border: 0;
+  box-shadow:
+    inset 0 calc(var(--ui) * 2) 0 0 #a8a8a8,
+    inset calc(var(--ui) * 2) 0 0 0 #909090,
+    inset calc(var(--ui) * -2) 0 0 0 #3d3d3d,
+    inset 0 calc(var(--ui) * -2) 0 0 #2c2c2c,
+    0 0 0 calc(var(--ui) * 1) #0c0c0c;
+  padding: calc(var(--ui) * 5) calc(var(--ui) * 6);
+  min-height: calc(var(--ui) * 20);
+  cursor: pointer;
+  text-shadow: calc(var(--ui) * 1) calc(var(--ui) * 1) 0 #3f3f3f;
+  transition: filter 60ms linear;
+}
+.mc-btn:hover:not(:disabled) {
+  background: linear-gradient(#9fa9c4, #7c86a4 45%, #6d7793);
+  color: var(--accent);
+}
+.mc-btn:active:not(:disabled) { filter: brightness(0.86); }
+.mc-btn:disabled { color: #8b8b8b; filter: grayscale(0.6) brightness(0.75); cursor: default; }
+/* The pixel face is proportional, so labels are wider than they were under
+   monospace. Buttons never wrap: they scale their text down and hold one line,
+   and the fixed widths were widened to suit. */
+.mc-btn { white-space: nowrap; }
+.mc-btn.wide { width: calc(var(--ui) * 220); }
+.mc-btn.half { width: calc(var(--ui) * 122); font-size: calc(var(--ui) * 7); }
+.mc-btn.third { width: calc(var(--ui) * 80); font-size: calc(var(--ui) * 7); }
+.mc-btn.small { font-size: calc(var(--ui) * 7); min-height: calc(var(--ui) * 16); padding: calc(var(--ui)*3) calc(var(--ui)*4); }
+.mc-btn.danger:hover:not(:disabled) { background: linear-gradient(#c48b8b, #a46a6a 45%, #935c5c); color: #ffdcdc; }
+
+/* ==========================================================================
+   Screens
+   ========================================================================== */
+#screens { position: fixed; inset: 0; pointer-events: none; }
+.screen {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center;
+  pointer-events: auto;
+  padding: calc(var(--ui) * 10) calc(var(--ui) * 8);
+  overflow: hidden;
+}
+.screen.dim { background: rgba(16, 16, 16, 0.72); backdrop-filter: blur(calc(var(--ui) * 1.5)); }
+/* The title screen's live world sits slightly out of focus behind the menu, so
+   the buttons and logo read cleanly against it. */
+#screen-title {
+  background: rgba(20, 22, 28, 0.28);
+  backdrop-filter: blur(calc(var(--ui) * 2.5)) saturate(1.05);
+}
+/* ---------- Advancements tree ---------- */
+#screen-advancements { background: rgba(12, 10, 18, 0.9); backdrop-filter: blur(calc(var(--ui) * 1.5)); }
+.adv-sub { font-size: calc(var(--ui) * 7); color: var(--accent); margin-bottom: calc(var(--ui) * 4); }
+.adv-body {
+  width: min(calc(var(--ui) * 300), 96vw);
+  flex: 1 1 auto; overflow: auto;
+  display: flex; justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  border: var(--ui) solid #2c2c2c;
+  padding: calc(var(--ui) * 6);
+  margin-bottom: calc(var(--ui) * 5);
+}
+.adv-canvas { position: relative; flex: none; }
+.adv-link { position: absolute; background: #5a5a5a; }
+.adv-node {
+  position: absolute;
+  display: flex; align-items: center; gap: calc(var(--ui) * 3);
+  width: calc(var(--ui) * 98); height: calc(var(--ui) * 20);
+  padding: calc(var(--ui) * 2);
+  background: #1d1d24;
+  box-shadow: inset 0 0 0 var(--ui) #000, 0 0 0 var(--ui) #4a4a4a;
+}
+.adv-node .adv-icon {
+  width: calc(var(--ui) * 15); height: calc(var(--ui) * 15); flex: none;
+  background-size: 100% 100%; background-repeat: no-repeat;
+}
+.adv-text { min-width: 0; }
+.adv-name { font-size: calc(var(--ui) * 6); color: #e8e8e8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.adv-desc { font-size: calc(var(--ui) * 5); color: #8d8d8d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.adv-node.done { background: #23331d; box-shadow: inset 0 0 0 var(--ui) #000, 0 0 0 var(--ui) #ffd24a; }
+.adv-node.done .adv-name { color: var(--accent); }
+.adv-node.next { box-shadow: inset 0 0 0 var(--ui) #000, 0 0 0 var(--ui) #cfcfcf; }
+.adv-node.locked { opacity: 0.5; }
+.adv-node.locked .adv-icon { filter: grayscale(1) brightness(0.6); }
+
+#screen-worlds, #screen-create, #screen-options, #screen-controls, #screen-info {
+  background: rgba(16, 16, 16, 0.86);
+  backdrop-filter: blur(calc(var(--ui) * 1.5));
+}
+.screen-title {
+  font-size: calc(var(--ui) * 11); font-weight: normal;
+  margin: calc(var(--ui) * 8) 0 calc(var(--ui) * 10);
+  letter-spacing: 0.04em;
+}
+
+/* Title screen */
+#screen-title { justify-content: flex-start; }
+.title-logo {
+  margin-top: 6vh;
+  display: flex; gap: calc(var(--ui) * 1);
+  filter: drop-shadow(calc(var(--ui)*2) calc(var(--ui)*3) 0 rgba(0,0,0,0.55));
+}
+.title-logo canvas { height: calc(var(--ui) * 44); width: auto; }
+/* Anchored by its centre rather than its left edge, so a long splash grows in
+   both directions instead of running off the right of the screen. */
+.splash {
+  color: var(--accent);
+  font-size: calc(var(--ui) * 8);
+  transform: translateX(-50%) rotate(-17deg);
+  position: absolute; left: 68%; top: calc(6vh + var(--ui) * 44);
+  transform-origin: center;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.menu-col { display: flex; flex-direction: column; gap: calc(var(--ui) * 5); margin-top: auto; margin-bottom: 12vh; align-items: center; }
+.btn-row { display: flex; gap: calc(var(--ui) * 4); justify-content: center; }
+.corner-left, .corner-right {
+  position: absolute; bottom: calc(var(--ui) * 4); font-size: calc(var(--ui) * 6);
+  color: #d8d8d8; text-shadow: var(--ui) var(--ui) 0 #000;
+}
+.corner-left { left: calc(var(--ui) * 4); }
+.corner-right { right: calc(var(--ui) * 4); }
+
+/* World list */
+.world-list {
+  width: min(calc(var(--ui) * 220), 92vw);
+  flex: 1 1 auto; overflow-y: auto; overflow-x: hidden;
+  background: rgba(0,0,0,0.55);
+  border-top: calc(var(--ui)*1) solid #2c2c2c; border-bottom: calc(var(--ui)*1) solid #2c2c2c;
+  padding: calc(var(--ui) * 2);
+  margin-bottom: calc(var(--ui) * 6);
+}
+.world-row {
+  display: flex; align-items: center; gap: calc(var(--ui) * 4);
+  padding: calc(var(--ui) * 4);
+  border: calc(var(--ui) * 1) solid transparent;
+  cursor: pointer;
+}
+.world-row:hover { background: rgba(255,255,255,0.07); }
+.world-row.sel { border-color: #ffffff; background: rgba(255,255,255,0.12); }
+.world-icon { width: calc(var(--ui)*28); height: calc(var(--ui)*28); flex: none; background: #333; border: calc(var(--ui)*1) solid #000; }
+.world-meta { display: flex; flex-direction: column; gap: calc(var(--ui)*1); min-width: 0; }
+.world-name { font-size: calc(var(--ui) * 8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.world-sub { font-size: calc(var(--ui) * 6); color: var(--text-dim); }
+.world-sub .won { color: #ffd24a; }
+.world-empty { padding: calc(var(--ui)*10); text-align: center; color: var(--text-dim); font-size: calc(var(--ui)*7); }
+
+.menu-bottom { width: min(calc(var(--ui) * 220), 92vw); display: flex; flex-direction: column; gap: calc(var(--ui) * 4); align-items: center; padding-bottom: calc(var(--ui) * 6); }
+
+/* Forms */
+.form { width: min(calc(var(--ui) * 200), 92vw); display: flex; flex-direction: column; gap: calc(var(--ui) * 3); flex: 1 1 auto; }
+.form label { font-size: calc(var(--ui) * 7); color: #d8d8d8; margin-top: calc(var(--ui) * 4); }
+.form label .hint { color: var(--text-dim); font-size: calc(var(--ui) * 6); }
+.mc-input {
+  font-family: var(--font); font-size: calc(var(--ui) * 8);
+  color: #fff; background: #000;
+  border: calc(var(--ui) * 1) solid #a0a0a0;
+  padding: calc(var(--ui) * 4);
+  outline: none; width: 100%;
+}
+.mc-input:focus { border-color: #fff; }
+.mode-desc { font-size: calc(var(--ui) * 6); color: var(--text-dim); text-align: center; min-height: calc(var(--ui)*14); }
+
+/* Options */
+.options-grid {
+  width: min(calc(var(--ui) * 250), 96vw);
+  display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--ui) * 3);
+  flex: 1 1 auto; overflow-y: auto; align-content: start; padding-right: calc(var(--ui)*2);
+}
+/* The pixel face is proportional and a shade wider than the monospace it
+   replaced, so option labels get their own smaller size and stay on one line. */
+.options-grid .mc-btn { font-size: calc(var(--ui) * 7); white-space: nowrap; }
+.opt-slider {
+  position: relative; height: calc(var(--ui) * 20);
+  background: #000;
+  box-shadow: inset 0 0 0 calc(var(--ui)*1) #0c0c0c, inset 0 calc(var(--ui)*2) 0 #4a4a4a, inset 0 calc(var(--ui)*-2) 0 #1a1a1a;
+  cursor: ew-resize; overflow: hidden;
+}
+.opt-slider .knob {
+  position: absolute; top: 0; height: 100%; width: calc(var(--ui) * 16);
+  background: linear-gradient(#8b8b8b, #6a6a6a 45%, #5c5c5c);
+  box-shadow: inset 0 calc(var(--ui) * 2) 0 0 #a8a8a8, inset 0 calc(var(--ui) * -2) 0 0 #2c2c2c;
+  pointer-events: none;
+}
+.opt-slider .lbl {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: calc(var(--ui) * 7); pointer-events: none;
+  text-shadow: var(--ui) var(--ui) 0 #3f3f3f;
+}
+.opt-section { grid-column: 1 / -1; font-size: calc(var(--ui)*8); color: var(--accent); margin-top: calc(var(--ui)*6); text-align: center; }
+
+/* Controls */
+.controls-grid {
+  width: min(calc(var(--ui) * 220), 94vw);
+  display: grid; grid-template-columns: 1fr auto 1fr auto; gap: calc(var(--ui) * 2) calc(var(--ui) * 4);
+  align-items: center;
+  flex: 1 1 auto; overflow-y: auto; align-content: start;
+}
+.controls-grid .k-label { font-size: calc(var(--ui) * 6); text-align: right; color: #d8d8d8; white-space: nowrap; }
+.controls-grid .mc-btn { width: calc(var(--ui) * 62); font-size: calc(var(--ui)*7); min-height: calc(var(--ui)*16); padding: 0; }
+.controls-grid .mc-btn.listening { color: var(--accent); }
+.controls-grid .mc-btn.conflict { color: #ff5555; }
+
+/* Death */
+.screen.death { background: rgba(120, 0, 0, 0.55); justify-content: center; }
+.death-title { font-size: calc(var(--ui) * 22); font-weight: normal; text-shadow: calc(var(--ui)*2) calc(var(--ui)*2) 0 #3f3f3f; }
+.death-cause { font-size: calc(var(--ui) * 8); margin-top: calc(var(--ui)*4); color: #ffd0d0; }
+.death-score { font-size: calc(var(--ui) * 8); margin: calc(var(--ui) * 4) 0 calc(var(--ui) * 10); }
+.screen.death .menu-col { margin: 0; }
+
+/* Victory */
+.screen.victory { background: #000; justify-content: flex-start; }
+.victory-scroll {
+  flex: 1 1 auto; width: min(calc(var(--ui) * 190), 90vw);
+  overflow: hidden; position: relative;
+  font-size: calc(var(--ui) * 8); line-height: 1.9;
+}
+.victory-scroll .vinner { position: absolute; left: 0; right: 0; }
+.victory-scroll .c1 { color: #7ad0ff; }
+.victory-scroll .c2 { color: #d0a0ff; }
+.victory-scroll .c3 { color: #ffd24a; }
+.victory-scroll .big { font-size: calc(var(--ui) * 14); color: #ffd24a; }
+
+/* Info */
+.info-body {
+  width: min(calc(var(--ui) * 220), 94vw); flex: 1 1 auto; overflow-y: auto;
+  font-size: calc(var(--ui) * 7); line-height: 1.7; color: #ddd;
+}
+.info-body h3 { color: var(--accent); font-size: calc(var(--ui)*8); margin: calc(var(--ui)*6) 0 calc(var(--ui)*2); font-weight: normal; }
+.info-body b { color: #fff; }
+.info-body ul { padding-left: calc(var(--ui)*10); }
+
+/* Loading */
+.screen.loading { background: #0d0d14; justify-content: center; gap: calc(var(--ui) * 6); }
+.loading-title { font-size: calc(var(--ui) * 10); }
+.loading-track { width: min(calc(var(--ui) * 180), 80vw); height: calc(var(--ui) * 8); background: #000; box-shadow: 0 0 0 calc(var(--ui)*1) #4a4a4a; }
+.loading-fill { height: 100%; width: 0%; background: #5d9c3c; transition: width 120ms linear; }
+.loading-tip { font-size: calc(var(--ui) * 7); color: var(--text-dim); max-width: 70vw; text-align: center; }
+
+/* ==========================================================================
+   HUD
+   ========================================================================== */
+#hud { position: fixed; inset: 0; pointer-events: none; }
+
+#crosshair {
+  position: absolute; left: 50%; top: 50%; width: calc(var(--ui) * 9); height: calc(var(--ui) * 9);
+  transform: translate(-50%, -50%);
+  background:
+    linear-gradient(#fff, #fff) center / 100% calc(var(--ui) * 1) no-repeat,
+    linear-gradient(#fff, #fff) center / calc(var(--ui) * 1) 100% no-repeat;
+  mix-blend-mode: difference; opacity: 0.85;
+}
+
+#hud-bars {
+  position: absolute; left: 50%; bottom: calc(var(--ui) * 4); transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: calc(var(--ui) * 1);
+}
+.icon-row { display: flex; gap: 0; height: calc(var(--ui) * 9); }
+.icon-row .ic { width: calc(var(--ui) * 9); height: calc(var(--ui) * 9); background-size: 100% 100%; background-repeat: no-repeat; }
+#bar-row { display: flex; width: calc(var(--ui) * 182); justify-content: space-between; }
+#bar-hunger { flex-direction: row-reverse; }
+#bar-armor, #bar-air { width: calc(var(--ui) * 182); }
+#bar-air { justify-content: flex-end; }
+.icon-row.shake { animation: hudshake 220ms steps(4) infinite; }
+@keyframes hudshake { 0%{transform:translate(0,0)} 25%{transform:translate(calc(var(--ui)*1),0)} 50%{transform:translate(0,calc(var(--ui)*1))} 75%{transform:translate(calc(var(--ui)*-1),0)} }
+
+#xp-wrap { position: relative; width: calc(var(--ui) * 182); height: calc(var(--ui) * 9); display: flex; align-items: center; }
+#xp-bar { width: 100%; height: calc(var(--ui) * 5); background: #1c1c1c; box-shadow: 0 0 0 calc(var(--ui)*1) #000; }
+#xp-fill { height: 100%; width: 0%; background: #80ff20; }
+#xp-level {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -60%);
+  color: #80ff20; font-size: calc(var(--ui) * 8);
+  text-shadow: calc(var(--ui)*1) 0 0 #000, calc(var(--ui)*-1) 0 0 #000, 0 calc(var(--ui)*1) 0 #000, 0 calc(var(--ui)*-1) 0 #000;
+}
+
+#hotbar {
+  display: flex; gap: 0; padding: calc(var(--ui) * 1);
+  background: rgba(12,12,12,0.82);
+  box-shadow: 0 0 0 calc(var(--ui)*1) rgba(0,0,0,0.85),
+              inset calc(var(--ui)*1) calc(var(--ui)*1) 0 rgba(255,255,255,0.16);
+}
+.slot {
+  position: relative;
+  width: calc(var(--ui) * 20); height: calc(var(--ui) * 20);
+  background: var(--slot);
+  box-shadow: inset calc(var(--ui)*2) calc(var(--ui)*2) 0 #373737, inset calc(var(--ui)*-2) calc(var(--ui)*-2) 0 #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+#hotbar .slot { background: rgba(120,120,120,0.55); box-shadow: inset calc(var(--ui)*1) calc(var(--ui)*1) 0 rgba(40,40,40,0.75), inset calc(var(--ui)*-1) calc(var(--ui)*-1) 0 rgba(255,255,255,0.4); }
+#hotbar .slot.sel { outline: calc(var(--ui) * 2) solid #fff; outline-offset: calc(var(--ui) * -1); z-index: 2; }
+.slot .icon { width: calc(var(--ui) * 16); height: calc(var(--ui) * 16); background-size: 100% 100%; background-repeat: no-repeat; pointer-events: none; }
+.slot .count {
+  position: absolute; right: calc(var(--ui) * 1); bottom: calc(var(--ui) * 0);
+  font-size: calc(var(--ui) * 8); line-height: 1;
+  text-shadow: calc(var(--ui)*1) calc(var(--ui)*1) 0 #3f3f3f; pointer-events: none;
+}
+.slot .dur {
+  position: absolute; left: calc(var(--ui) * 2); bottom: calc(var(--ui) * 2);
+  width: calc(var(--ui) * 16); height: calc(var(--ui) * 2); background: #000; pointer-events: none;
+}
+.slot .dur i { display: block; height: 100%; }
+.slot.pop .icon { animation: slotpop 220ms ease-out; }
+@keyframes slotpop { 0% { transform: scale(1.5); } 100% { transform: scale(1); } }
+
+#item-name-flash {
+  position: absolute; left: 50%; bottom: calc(var(--ui) * 28); transform: translateX(-50%);
+  font-size: calc(var(--ui) * 8); opacity: 0; transition: opacity 300ms linear;
+  text-shadow: calc(var(--ui)*1) calc(var(--ui)*1) 0 #3f3f3f; white-space: nowrap;
+}
+#item-name-flash.show { opacity: 1; transition: none; }
+
+#boss-bar { position: absolute; left: 50%; top: calc(var(--ui) * 6); transform: translateX(-50%); width: calc(var(--ui) * 182); text-align: center; }
+#boss-name { font-size: calc(var(--ui) * 8); margin-bottom: calc(var(--ui) * 1); }
+#boss-track { height: calc(var(--ui) * 6); background: #2a0033; box-shadow: 0 0 0 calc(var(--ui)*1) #000; }
+#boss-fill { height: 100%; width: 100%; background: linear-gradient(#d060ff, #8000c0); transition: width 200ms linear; }
+
+#subtitles { position: absolute; right: calc(var(--ui) * 4); bottom: calc(var(--ui) * 40); display: flex; flex-direction: column; gap: calc(var(--ui) * 1); align-items: flex-end; pointer-events: none; }
+#subtitles .subtitle { background: rgba(0, 0, 0, 0.6); color: #fff; padding: calc(var(--ui) * 1) calc(var(--ui) * 2); font-size: calc(var(--ui) * 7); border-left: calc(var(--ui) * 1) solid #ddd; }
+#toasts { position: absolute; right: calc(var(--ui) * 4); top: calc(var(--ui) * 4); display: flex; flex-direction: column; gap: calc(var(--ui) * 2); align-items: flex-end; }
+.toast {
+  background: rgba(20,20,25,0.85); box-shadow: 0 0 0 calc(var(--ui)*1) #4a4a4a;
+  padding: calc(var(--ui) * 3) calc(var(--ui) * 4);
+  font-size: calc(var(--ui) * 7); max-width: calc(var(--ui) * 130);
+  display: flex; align-items: center; gap: calc(var(--ui) * 3);
+  animation: toastin 260ms ease-out;
+}
+.toast .t-icon { width: calc(var(--ui)*16); height: calc(var(--ui)*16); background-size: 100% 100%; flex: none; }
+.toast .t-title { color: var(--accent); }
+.toast .t-sub { color: #ddd; font-size: calc(var(--ui)*6); }
+.toast.fade { opacity: 0; transition: opacity 400ms linear; }
+@keyframes toastin { from { transform: translateX(40%); opacity: 0; } to { transform: none; opacity: 1; } }
+
+#debug-overlay {
+  position: absolute; left: calc(var(--ui) * 2); top: calc(var(--ui) * 2);
+  font-size: calc(var(--ui) * 7); line-height: 1.35; color: #fff;
+  background: rgba(0,0,0,0.5); padding: calc(var(--ui) * 2); white-space: pre;
+}
+
+#damage-flash { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(255,0,0,0) 35%, rgba(180,0,0,0.75) 100%); opacity: 0; pointer-events: none; }
+#dim-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55) 100%); opacity: 0.5; pointer-events: none; }
+#portal-overlay { position: absolute; inset: 0; background: rgba(120, 30, 190, 0.5); opacity: 0; pointer-events: none; transition: opacity 200ms linear; }
+#water-overlay { position: absolute; inset: 0; background: rgba(30, 80, 180, 0.42); opacity: 0; pointer-events: none; }
+
+#chat-log { position: absolute; left: calc(var(--ui)*3); bottom: calc(var(--ui)*58); display: flex; flex-direction: column; gap: calc(var(--ui)*1); font-size: calc(var(--ui)*7); max-width: 60vw; }
+#chat-log div { background: rgba(0,0,0,0.42); padding: calc(var(--ui)*1) calc(var(--ui)*2); }
+#chat-input-wrap {
+  position: absolute; left: calc(var(--ui)*3); right: calc(var(--ui)*3); bottom: calc(var(--ui)*40);
+  background: rgba(0,0,0,0.6); padding: calc(var(--ui)*2); display: flex; gap: calc(var(--ui)*2);
+  pointer-events: auto; font-size: calc(var(--ui)*8);
+}
+#chat-input { flex: 1; background: transparent; border: 0; outline: none; color: #fff; font-family: var(--font); font-size: calc(var(--ui)*8); }
+
+#chat-suggest {
+  position: absolute; left: calc(var(--ui)*5); bottom: calc(var(--ui)*52);
+  display: flex; flex-direction: column;
+  background: rgba(0,0,0,0.82);
+  box-shadow: 0 0 0 calc(var(--ui)*1) #2a2a2a;
+  font-size: calc(var(--ui)*7); pointer-events: auto;
+  max-height: calc(var(--ui)*70); overflow-y: auto;
+}
+#chat-suggest .sug {
+  padding: calc(var(--ui)*1) calc(var(--ui)*4);
+  color: #b8b8b8; white-space: nowrap; cursor: pointer;
+}
+#chat-suggest .sug .hit { color: var(--accent); }
+#chat-suggest .sug .desc { color: #6e6e6e; margin-left: calc(var(--ui)*3); }
+#chat-suggest .sug.sel { background: rgba(255,255,255,0.16); color: #fff; }
+
+/* ==========================================================================
+   Container screens (inventory / crafting / furnace / chest)
+   ========================================================================== */
+#container-root {
+  position: fixed; inset: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(16,16,16,0.62);
+  backdrop-filter: blur(calc(var(--ui) * 1));
+}
+.gui-panel {
+  position: relative;
+  background: var(--panel);
+  box-shadow:
+    inset calc(var(--ui)*3) calc(var(--ui)*3) 0 #fff,
+    inset calc(var(--ui)*-3) calc(var(--ui)*-3) 0 #555,
+    0 0 0 calc(var(--ui)*1) #000;
+  padding: calc(var(--ui) * 7);
+  color: #3f3f3f;
+  display: flex; flex-direction: column; gap: calc(var(--ui) * 4);
+  max-height: 96vh;
+}
+/* Book on the left, screen on the right â€” the shell keeps them side by side
+   and centred as a pair however wide the book is. */
+.gui-shell { display: flex; align-items: center; gap: calc(var(--ui) * 4); max-height: 96vh; }
+.gui-title { font-size: calc(var(--ui) * 8); color: #3f3f3f; }
+.gui-subtitle { font-size: calc(var(--ui) * 7); color: #3f3f3f; }
+.gui-row { display: flex; gap: calc(var(--ui) * 6); align-items: flex-start; }
+/* Armour and character on the left, crafting pushed over to the right, the way
+   the real inventory is laid out. */
+.inv-top { justify-content: space-between; width: 100%; align-items: flex-start; }
+.craft-block { display: flex; flex-direction: column; gap: calc(var(--ui) * 2); align-items: flex-end; }
+.armor-side { gap: calc(var(--ui) * 3); }
+.hotbar-row { margin-top: calc(var(--ui) * 4); }
+/* The recipe-book toggle: a little green book, lit when the list is showing. */
+.book-btn {
+  width: calc(var(--ui) * 20); height: calc(var(--ui) * 20); cursor: pointer;
+  background:
+    linear-gradient(#e8e4d8, #cfcabb) no-repeat calc(var(--ui) * 5) calc(var(--ui) * 3) / calc(var(--ui) * 11) calc(var(--ui) * 14),
+    linear-gradient(#3f8f3a, #2c6b2a);
+  box-shadow: inset calc(var(--ui)*2) calc(var(--ui)*2) 0 #6fbf5f,
+              inset calc(var(--ui)*-2) calc(var(--ui)*-2) 0 #1d4a1c,
+              0 0 0 var(--ui) #16330f;
+}
+.book-btn:hover { filter: brightness(1.15); }
+.book-btn.on { box-shadow: inset calc(var(--ui)*2) calc(var(--ui)*2) 0 #8fdf7f,
+              inset calc(var(--ui)*-2) calc(var(--ui)*-2) 0 #1d4a1c,
+              0 0 0 var(--ui) #16330f, 0 0 0 calc(var(--ui)*2) var(--accent); }
+.grid { display: grid; gap: calc(var(--ui) * 1); }
+.grid .slot { width: calc(var(--ui) * 18); height: calc(var(--ui) * 18); }
+.grid .slot .icon { width: calc(var(--ui) * 15); height: calc(var(--ui) * 15); }
+.slot.hover { background: #b8b8b8; }
+.slot.arm::after {
+  content: ''; position: absolute; inset: calc(var(--ui) * 3);
+  background: currentColor; opacity: 0.18; pointer-events: none;
+}
+.gui-arrow { width: calc(var(--ui) * 24); height: calc(var(--ui) * 17); position: relative; align-self: center; }
+.gui-arrow .a-bg, .gui-arrow .a-fg { position: absolute; inset: 0; background-size: 100% 100%; }
+.gui-flame { width: calc(var(--ui) * 14); height: calc(var(--ui) * 14); position: relative; }
+.gui-flame .f-bg, .gui-flame .f-fg { position: absolute; left: 0; right: 0; bottom: 0; background-size: 100% auto; background-position: bottom; }
+.gui-sep { font-size: calc(var(--ui) * 7); color: #3f3f3f; }
+.gui-cols { display: flex; flex-direction: column; gap: calc(var(--ui) * 4); }
+.gui-close { position: absolute; right: calc(var(--ui)*3); top: calc(var(--ui)*2); font-size: calc(var(--ui)*8); color: #6a6a6a; cursor: pointer; }
+.gui-close:hover { color: #000; }
+
+/* The book is its own pop-out panel, so it needs the same frame as the screen
+   it sits beside rather than floating loose over the world. */
+.recipe-panel {
+  width: calc(var(--ui) * 128); display: flex; flex-direction: column; gap: calc(var(--ui) * 2);
+  background: var(--panel);
+  box-shadow:
+    inset calc(var(--ui)*3) calc(var(--ui)*3) 0 #fff,
+    inset calc(var(--ui)*-3) calc(var(--ui)*-3) 0 #555,
+    0 0 0 calc(var(--ui)*1) #000;
+  padding: calc(var(--ui) * 6);
+  color: #3f3f3f;
+}
+.recipe-search { width: 100%; font-family: var(--font); font-size: calc(var(--ui)*7); padding: calc(var(--ui)*2); border: calc(var(--ui)*1) solid #555; background: #eee; color: #222; outline: none; }
+.recipe-list {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: calc(var(--ui) * 1);
+  max-height: calc(var(--ui) * 96); overflow-y: auto;
+  background: #8b8b8b; padding: calc(var(--ui) * 1);
+  box-shadow: inset calc(var(--ui)*2) calc(var(--ui)*2) 0 #373737, inset calc(var(--ui)*-2) calc(var(--ui)*-2) 0 #fff;
+}
+/* Sized so six columns plus padding and the scrollbar fit the panel width. */
+.recipe-list .slot { cursor: pointer; width: calc(var(--ui) * 17); height: calc(var(--ui) * 17); }
+.recipe-list .slot .icon { width: calc(var(--ui) * 14); height: calc(var(--ui) * 14); }
+.recipe-list .slot .count { font-size: calc(var(--ui) * 6); }
+.recipe-list .slot.locked { filter: grayscale(1) brightness(0.55); }
+/* Recipes that need a bigger grid: still listed, but clearly out of reach here,
+   with a corner mark standing in for "go find a crafting table". */
+.recipe-list .slot.needs-table { filter: grayscale(1) brightness(0.42); }
+.recipe-list .slot.needs-table::after {
+  content: ''; position: absolute; right: calc(var(--ui) * 1); bottom: calc(var(--ui) * 1);
+  width: calc(var(--ui) * 5); height: calc(var(--ui) * 5);
+  background: #8a6a3c; box-shadow: inset 0 0 0 var(--ui) #4a3520;
+  pointer-events: none;
+}
+.recipe-list .slot.sel { outline: calc(var(--ui) * 2) solid #fff; outline-offset: calc(var(--ui) * -1); }
+/* Fixed to exactly one line: this label changes on every hover, and letting it
+   wrap grew the whole panel and made the screen flicker as the pointer swept
+   across the list. */
+.recipe-hint { font-size: calc(var(--ui) * 6); color: #4a4a4a; }
+.recipe-panel > .recipe-hint {
+  height: calc(var(--ui) * 9); line-height: calc(var(--ui) * 9);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Recipe-book ghost: the layout the book just laid out, drawn faintly in the
+   empty crafting cells. Ingredients you hold show in colour; ones you are
+   missing are greyed right down. */
+.slot.ghost .icon { opacity: 0.7; }
+/* Still legible â€” you need to be able to see what it is you're short of. */
+.slot.ghost.ghost-missing .icon { opacity: 0.45; filter: grayscale(1) brightness(0.8); }
+.slot.ghost::after {
+  content: ''; position: absolute; inset: calc(var(--ui) * 2);
+  outline: var(--ui) dashed rgba(60, 60, 60, 0.5); pointer-events: none;
+}
+
+/* --- Creative palette --- */
+.creative-panel { width: calc(var(--ui) * 190); display: flex; flex-direction: column; gap: calc(var(--ui) * 2); }
+.creative-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(var(--ui) * 1); }
+.creative-tab { width: 100%; font-size: calc(var(--ui) * 6); min-height: calc(var(--ui) * 14); padding: 0 calc(var(--ui)*1); }
+.creative-tab.sel { color: var(--accent); background: linear-gradient(#9fa9c4, #7c86a4 45%, #6d7793); }
+.creative-list {
+  display: grid; grid-template-columns: repeat(10, 1fr); gap: calc(var(--ui) * 1);
+  height: calc(var(--ui) * 92); overflow-y: auto;
+  background: #8b8b8b; padding: calc(var(--ui) * 1);
+  box-shadow: inset calc(var(--ui)*2) calc(var(--ui)*2) 0 #373737, inset calc(var(--ui)*-2) calc(var(--ui)*-2) 0 #fff;
+  align-content: start;
+}
+.creative-list .slot { cursor: pointer; width: calc(var(--ui) * 17); height: calc(var(--ui) * 17); }
+.creative-list .slot .icon { width: calc(var(--ui) * 14); height: calc(var(--ui) * 14); }
+.player-preview { width: calc(var(--ui)*48); height: calc(var(--ui)*72); background: #1c1c24; box-shadow: inset calc(var(--ui)*2) calc(var(--ui)*2) 0 #373737, inset calc(var(--ui)*-2) calc(var(--ui)*-2) 0 #fff; }
+.armor-panel { align-items: flex-start; flex: 0 0 auto; }
+/* Off-hand slot: pushed to the bottom of the character column and marked with
+   a faint shield so an empty one still reads as "put something here". */
+.offhand-col { justify-content: flex-end; height: calc(var(--ui) * 72); }
+.offhand-col .slot::before {
+  content: ''; position: absolute; inset: calc(var(--ui) * 4);
+  background: #6e6e6e;
+  clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%);
+  opacity: 0.5; pointer-events: none;
+}
+.offhand-col .slot .icon { position: relative; z-index: 1; }
+
+/* The screen's own pointer, drawn while the browser cursor stays locked away.
+   A chunky arrow so it reads against the grey panel at any GUI scale. */
+#ui-cursor {
+  position: fixed; z-index: 80; pointer-events: none;
+  width: calc(var(--ui) * 9); height: calc(var(--ui) * 13);
+  background: #fff;
+  clip-path: polygon(0 0, 0 100%, 28% 74%, 48% 100%, 72% 86%, 52% 62%, 88% 56%);
+  filter: drop-shadow(var(--ui) var(--ui) 0 rgba(0, 0, 0, 0.85));
+}
+.virtual-cursor { cursor: none; }
+/* Sleeping. The fade sits above the world but below the button, so you can
+   always find your way out of the bed however dark it has got. */
+#sleep-fade {
+  position: fixed; inset: 0; z-index: 45; pointer-events: none;
+  background: #000; opacity: 0;
+}
+#sleep-ui {
+  position: fixed; inset: 0; z-index: 46;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  gap: calc(var(--ui) * 6); padding-bottom: 22vh;
+  pointer-events: none;
+}
+#sleep-ui .sleep-msg {
+  font-size: calc(var(--ui) * 9); color: #e8e8e8;
+  text-shadow: calc(var(--ui) * 1) calc(var(--ui) * 1) 0 #000;
+}
+#sleep-ui .mc-btn { pointer-events: auto; }
+#drag-ghost { position: fixed; z-index: 60; pointer-events: none; width: calc(var(--ui) * 18); height: calc(var(--ui) * 18); }
+#drag-ghost .icon { width: 100%; height: 100%; background-size: 100% 100%; }
+#drag-ghost .count { position: absolute; right: calc(var(--ui)*-1); bottom: calc(var(--ui)*-2); font-size: calc(var(--ui)*8); color: #fff; text-shadow: var(--ui) var(--ui) 0 #3f3f3f; }
+
+#tooltip {
+  position: fixed; z-index: 70; pointer-events: none;
+  background: rgba(16, 0, 32, 0.92);
+  box-shadow: 0 0 0 calc(var(--ui)*1) #2a0a52, 0 0 0 calc(var(--ui)*2) #100020;
+  padding: calc(var(--ui) * 3) calc(var(--ui) * 4);
+  font-size: calc(var(--ui) * 7); color: #fff; max-width: calc(var(--ui) * 120);
+}
+.tooltip-title { color: #fff; }
+.tooltip-sub { color: #a0a0a0; font-size: calc(var(--ui) * 6); }
+.tooltip-good { color: #55ff55; }
+.tooltip-bad { color: #ff5555; }
+.tooltip-note { color: #a0a0ff; }
+
+#fatal { position: fixed; inset: 0; z-index: 200; background: #180000; color: #ffbbbb; padding: 5vh; font-size: 14px; overflow: auto; }
+#fatal pre { white-space: pre-wrap; margin-top: 2em; color: #ff8888; }
+
+/* Landscape phone / small window fallbacks */
+@media (max-height: 520px) {
+  .menu-col { margin-bottom: 4vh; gap: calc(var(--ui) * 3); }
+  .title-logo { margin-top: 2vh; }
+}
+
+
+
+
+/* ============ Touch controls (engine/touch.js) ============ */
+/* The whole overlay only exists while actually playing on a touch device.  */
+#touch-ui { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
+#touch-ui.hidden { display: none; }
+
+/* Look/aim layer: any touch that starts here drags the camera, taps place, holds mine. */
+#touch-look {
+  position: absolute; inset: 0;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+/* Floating joystick: the base appears wherever the thumb lands in this zone. */
+#touch-stick-zone {
+  position: absolute; left: 0; bottom: 0;
+  width: 44%; height: 62%;
+  pointer-events: auto;
+  touch-action: none;
+}
+#touch-stick-base {
+  position: absolute;
+  width: 128px; height: 128px;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(10, 10, 14, 0.28);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.35);
+  display: none;
+}
+#touch-stick-base.active { display: block; }
+#touch-stick-knob {
+  position: absolute; left: 50%; top: 50%;
+  width: 56px; height: 56px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+/* Buttons */
+.touch-btn {
+  pointer-events: auto;
+  touch-action: none;
+  -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  width: 64px; height: 64px;
+  border-radius: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  background: rgba(10, 10, 14, 0.34);
+  color: rgba(255, 255, 255, 0.92);
+  font: inherit; font-size: 22px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.6);
+}
+.touch-btn.active {
+  background: rgba(255, 255, 255, 0.38);
+  border-color: rgba(255, 255, 255, 0.9);
+}
+.touch-btn-big { width: 92px; height: 92px; font-size: 30px; border-radius: 50%; }
+.touch-btn-small { width: 52px; height: 52px; font-size: 16px; }
+
+#touch-buttons-right {
+  position: absolute;
+  right: calc(18px + env(safe-area-inset-right, 0px));
+  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
+#touch-buttons-top {
+  position: absolute;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: calc(12px + env(safe-area-inset-right, 0px));
+  display: flex; gap: 10px;
+}
+
+/* On touch devices the menus are driven by real taps; the crosshair stays
+   centred, which is what aim-at-centre gameplay expects. */
+body.touch-mode { cursor: auto; }
+
+/* The hotbar has to sit above the full-screen touch look layer, or taps on it
+   get swallowed and only slot 1 is ever selectable on a phone. */
+body.touch-mode #hud { z-index: 50; }
+body.touch-mode #hotbar { pointer-events: auto; touch-action: none; }
+body.touch-mode #hotbar .slot { position: relative; }
+/* Fingers are bigger than the art: grow the hit target without moving pixels. */
+body.touch-mode #hotbar .slot::after {
+  content: ''; position: absolute; inset: calc(var(--ui) * -3);
+}
+
+/* ChugCraft 3: thumb-accessible combat, safe areas and workshop panels. */
+#effect-hud{position:fixed;left:12px;top:12px;z-index:25;pointer-events:none;color:#e8cbff;font:14px system-ui;text-shadow:1px 2px #000;max-width:50vw;}
+#touch-actions{position:absolute;right:calc(122px + env(safe-area-inset-right,0px));bottom:calc(108px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;}
+#touch-actions .touch-btn{font:700 13px system-ui;width:58px;height:58px;}
+#tb-swap{font:700 11px system-ui;}
+body.touch-mode #hotbar .slot::after{inset:0;}
+body.touch-mode #touch-stick-base{position:absolute;}
+.workshop{width:calc(var(--ui)*170);max-width:88vw;color:#292330;display:flex;flex-direction:column;gap:8px;font:14px system-ui;}
+.workshop-list{display:flex;flex-wrap:wrap;gap:5px;max-height:100px;overflow:auto;}
+.workshop-list button{min-height:40px;border:2px solid #696071;background:#e3dce8;color:#31243e;padding:5px 8px;font:12px system-ui;cursor:pointer;}
+.workshop-list button.selected{background:#dbc2fa;border-color:#7138a0;}
+.workshop-status{min-height:42px;line-height:1.4;font-size:12px;}
+.workshop button.execute{min-height:44px;white-space:normal;font:14px system-ui;padding:6px;}
+@media(max-width:600px){
+ body.touch-mode #hotbar{max-width:96vw;gap:0;padding:3px;bottom:calc(8px + env(safe-area-inset-bottom,0px));}
+ body.touch-mode #hotbar .slot{width:10vw;height:42px;}
+ body.touch-mode #touch-buttons-right{bottom:100px;right:12px;gap:8px;}
+ body.touch-mode .touch-btn-big{width:66px;height:66px;}
+ body.touch-mode #touch-actions{right:88px;bottom:108px;flex-direction:column;}
+ body.touch-mode #touch-actions .touch-btn{height:48px;width:54px;}
+ body.touch-mode #container-root{overflow:auto;padding:10px;align-items:flex-start;}
+ body.touch-mode .gui-shell{max-width:100%;flex-wrap:wrap;justify-content:center;}
+ body.touch-mode .gui-panel{max-width:96vw;}
+ body.touch-mode #touch-buttons-top{gap:6px;}
+ body.touch-mode .touch-btn-small{width:44px;height:44px;}
+}
+
+/* Panels stay usable on landscape phones; HUD cannot cover container slots. */
+#container-root{z-index:60;}
+#container-root .gui-panel{max-height:calc(100dvh - 20px);overflow:auto;box-sizing:border-box;}
+body:has(#container-root:not(.hidden)) #hud{visibility:hidden;}
+#screen-pause .menu-col{max-height:78dvh;overflow-y:auto;padding:4px;}

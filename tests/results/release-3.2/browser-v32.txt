@@ -1,0 +1,35 @@
+PASS readable nights enabled by default
+PASS default night lighting is visibly stronger than original
+PASS night control does not brighten daytime
+PASS visibility setting does not change gameplay sunlight
+PASS mobile USE places water source
+PASS placed water really spreads into levelled flow
+PASS basin walls contain flowing water
+PASS empty bucket can select and pick up the source
+PASS source pickup drains the pool instead of leaving permanent flow
+PASS placed lava spreads in the live game
+PASS water/lava source contact creates obsidian
+PASS flowing shallow water wets feet but not the head
+PASS flowing lava is treated as lava by player physics
+PASS oak_door places as two matching halves
+PASS oak_door opens both halves with mobile USE
+PASS oak_door closes with mobile USE
+PASS birch_door places as two matching halves
+PASS birch_door opens both halves with mobile USE
+PASS birch_door closes with mobile USE
+PASS spruce_door places as two matching halves
+PASS spruce_door opens both halves with mobile USE
+PASS spruce_door closes with mobile USE
+PASS oak_gate opens via mobile USE
+PASS oak_trapdoor opens via mobile USE
+PASS closed doors collide with panels, not invisible full cubes
+PASS connected windows use thin collision matching the mesh
+PASS worker builds all new geometry without errors
+PASS night visibility survives all three shader packs and vanilla
+PASS showcase world exports through the backup validator
+PASS new building blocks and door material survive reload
+PASS fountain source and waterfall levels survive reload
+PASS night visibility setting persists across world reload
+PASS repeated source/menu changes remain playable with bounded work
+PASS no browser runtime/console errors
+RESULT 34/34

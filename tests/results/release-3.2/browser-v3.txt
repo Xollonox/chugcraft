@@ -1,0 +1,43 @@
+PASS auto mobile mode
+PASS native touch selects hotbar 1
+PASS native touch selects hotbar 2
+PASS native touch selects hotbar 3
+PASS native touch selects hotbar 4
+PASS native touch selects hotbar 5
+PASS native touch selects hotbar 6
+PASS native touch selects hotbar 7
+PASS native touch selects hotbar 8
+PASS native touch selects hotbar 9
+PASS touchcancel does not place or attack
+PASS mobile USE eats food after holding
+PASS mobile potion drinking applies timed effect and returns bottle
+PASS active potion duration appears on HUD
+PASS healing restores four health
+PASS fire resistance blocks lava/fire damage
+PASS regeneration heals then expires
+PASS mobile USE draws and releases bow
+PASS dedicated mobile HIT attacks aimed mob
+PASS pause releases held touch actions
+PASS placed enchant station opens workshop
+PASS native mobile enchant transaction works
+PASS placed anvil station opens workshop
+PASS native mobile anvil transaction works
+PASS placed brew station opens workshop
+PASS native mobile brew transaction works
+PASS full-bag container close spills cursor and crafting stacks
+PASS autosave snapshots temporary inventory without closing UI
+PASS real generated world passes backup validator
+PASS pause menu downloads a real world backup
+PASS import creates a separate world without overwriting original
+PASS save/reload preserves inventory and potion effects
+PASS dropped enchanted tool survives save/reload
+PASS dead save reload shows death screen
+PASS pre-v3 save shape loads with safe defaults
+PASS portrait hotbar and action buttons fit and receive touches
+PASS 20-cycle mobile menu/input soak remains playable without stuck attack
+PASS Use action opens nearby villager trading screen
+PASS villager trade exchanges items from actual UI
+PASS solid wall blocks entity targeting
+PASS zero browser runtime errors: 
+PASS no missing textures/icons: 
+RESULT 42/42 passed

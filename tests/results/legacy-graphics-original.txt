@@ -1,0 +1,39 @@
+--- desktop ---
+PASS  title screen reached
+PASS  graphics preset button shows High default (Graphics: High)
+PASS  shader pack button present, Vanilla default
+PASS  touch controls button present, Auto default
+PASS  render scale slider present (Render Scale: 100%)
+PASS  preset cycle Ultra→Potato→Low→Medium→High (Graphics: Ultra | Graphics: Potato | Graphics: Low | Graphics: Medium | Graphics: High)
+PASS  Potato applies rd=3 scale=0.5 ssao=off ([3,0.5,false,0,0.5])
+PASS  hand-tuned setting flips preset to Custom (5)
+PASS  world created, state=playing
+PASS  Sunflare uniforms applied ({"bloom":0.82,"sat":1.26,"tint":[1.06,1,0.9],"direct":1.35,"uDirect":0.459})
+PASS  Dreamwave uniforms applied ({"bloom":1.05,"sat":0.94,"tint":[0.98,0.99,1.07],"direct":0.7,"uDirect":0.238})
+PASS  Nightfall sun multiplier reaches the sky ({"bloom":0.68,"sat":1.03,"tint":[0.93,0.98,1.08],"direct":1.25,"uDirect":0.425})
+PASS  picking a pack force-enables bloom & grading
+PASS  preset 0 applied in-game ({"state":"playing","rd":3,"scale":0.5,"preset":0})
+PASS  preset 1 applied in-game ({"state":"playing","rd":5,"scale":0.75,"preset":1})
+PASS  preset 2 applied in-game ({"state":"playing","rd":8,"scale":1,"preset":2})
+PASS  preset 3 applied in-game ({"state":"playing","rd":11,"scale":1,"preset":3})
+PASS  preset 4 applied in-game ({"state":"playing","rd":16,"scale":1,"preset":4})
+PASS  game loop alive on software GL (8.5 fps headless)
+PASS  inventory opens and closes
+PASS  esc pauses (paused)
+PASS  resume works (playing)
+PASS  no console/page errors on desktop
+--- mobile/touch ---
+PASS  touch mode auto-detected on a touch device
+PASS  world created via taps
+PASS  touch UI appears in gameplay
+PASS  joystick registers forward push ({"x":0,"z":-1})
+PASS  player walked with the joystick (1.20 blocks)
+PASS  joystick release stops movement
+PASS  look drag turns the camera (dyaw=-0.720)
+FAIL  hold-to-mine presses and releases attack
+PASS  jump button presses jump
+PASS  sneak button toggles on
+PASS  inventory button opens inventory
+PASS  touch UI hides while a container is open
+PASS  no console/page errors on touch
+1 FAILURES

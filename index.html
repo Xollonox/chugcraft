@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>ChugCraft</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%237a5c3e'/><rect width='16' height='5' fill='%235d9c3c'/></svg>">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js" } }
+</script>
+</head>
+<body>
+
+<!-- ============ 3D viewport ============ -->
+<canvas id="viewport"></canvas>
+
+<!-- ============ Touch controls (engine/touch.js shows this on touch devices) ============ -->
+<div id="touch-ui" class="hidden">
+  <!-- full-screen look/aim layer; the joystick zone and buttons sit above it -->
+  <div id="touch-look"></div>
+  <div id="touch-stick-zone">
+    <div id="touch-stick-base"><div id="touch-stick-knob"></div></div>
+  </div>
+  <div id="touch-actions">
+    <button id="tb-attack" class="touch-btn" aria-label="Attack or mine">HIT</button>
+    <button id="tb-use" class="touch-btn" aria-label="Hold to use, eat, drink or draw bow">USE</button>
+  </div>
+  <div id="touch-buttons-right">
+    <button id="tb-jump" class="touch-btn touch-btn-big" aria-label="Jump">&#9650;</button>
+    <button id="tb-sneak" class="touch-btn" aria-label="Sneak">&#9660;</button>
+  </div>
+  <div id="touch-buttons-top">
+    <button id="tb-swap" class="touch-btn touch-btn-small" aria-label="Swap hands">SWAP</button>
+    <button id="tb-drop" class="touch-btn touch-btn-small" aria-label="Drop item">Q</button>
+    <button id="tb-inv" class="touch-btn touch-btn-small" aria-label="Inventory">&#9636;</button>
+    <button id="tb-pause" class="touch-btn touch-btn-small" aria-label="Pause">II</button>
+  </div>
+</div>
+
+<!-- ============ In-game HUD ============ -->
+<div id="hud" class="hidden">
+  <div id="effect-hud" role="status"></div>
+  <div id="subtitles" role="log" aria-live="polite"></div>
+  <div id="crosshair"></div>
+  <div id="hud-bars">
+    <div id="bar-armor" class="icon-row hidden"></div>
+    <div id="bar-air" class="icon-row hidden"></div>
+    <div id="bar-row">
+      <div id="bar-health" class="icon-row"></div>
+      <div id="bar-hunger" class="icon-row"></div>
+    </div>
+    <div id="xp-wrap">
+      <div id="xp-bar"><div id="xp-fill"></div></div>
+      <div id="xp-level"></div>
+    </div>
+    <div id="hotbar"></div>
+  </div>
+  <div id="item-name-flash"></div>
+  <div id="boss-bar" class="hidden">
+    <div id="boss-name">Ender Dragon</div>
+    <div id="boss-track"><div id="boss-fill"></div></div>
+  </div>
+  <div id="toasts"></div>
+  <div id="debug-overlay" class="hidden"></div>
+  <div id="dim-vignette"></div>
+  <div id="damage-flash"></div>
+  <div id="portal-overlay"></div>
+  <div id="water-overlay"></div>
+  <div id="chat-log"></div>
+  <div id="chat-suggest" class="hidden"></div>
+  <div id="chat-input-wrap" class="hidden"><span>&gt;</span><input id="chat-input" type="text" autocomplete="off" spellcheck="false"></div>
+</div>
+
+<!-- ============ Screens ============ -->
+<div id="screens">
+
+  <!-- Title -->
+  <section id="screen-title" class="screen hidden">
+    <div class="title-logo" id="title-logo"></div>
+    <div class="splash" id="splash-text">Beat the dragon!</div>
+    <div class="menu-col">
+      <button class="mc-btn wide" data-act="singleplayer">Singleplayer</button>
+      <button class="mc-btn wide" data-act="options">Options...</button>
+      <div class="btn-row">
+        <button class="mc-btn half" data-act="howto">How to Play</button>
+        <button class="mc-btn half" data-act="about">About</button>
+      </div>
+    </div>
+    <div class="corner-left">ChugCraft 3.2 &mdash; an original voxel adventure</div>
+    <div class="corner-right">Not affiliated with Mojang</div>
+  </section>
+
+  <!-- World select -->
+  <section id="screen-worlds" class="screen hidden">
+    <h2 class="screen-title">Select World</h2>
+    <div class="world-list" id="world-list"></div>
+    <div id="backup-status" role="status" style="font:13px system-ui;max-width:90vw;text-align:center"></div>
+    <input id="world-import" type="file" accept=".json" hidden>
+    <div class="menu-bottom">
+      <div class="btn-row">
+        <button class="mc-btn half" id="btn-export-world">Export Backup</button>
+        <button class="mc-btn half" id="btn-import-world">Import Backup</button>
+      </div>
+      <div class="btn-row">
+        <button class="mc-btn half" id="btn-play-world" disabled>Play Selected World</button>
+        <button class="mc-btn half" data-act="create">Create New World</button>
+      </div>
+      <div class="btn-row">
+        <button class="mc-btn third" id="btn-rename-world" disabled>Rename</button>
+        <button class="mc-btn third" id="btn-delete-world" disabled>Delete</button>
+        <button class="mc-btn third" data-act="title">Cancel</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Create world -->
+  <section id="screen-create" class="screen hidden">
+    <h2 class="screen-title">Create New World</h2>
+    <div class="form">
+      <label>World Name</label>
+      <input class="mc-input" id="in-name" type="text" value="New World" maxlength="32">
+      <label>Seed for the World Generator <span class="hint">(leave blank for a random seed)</span></label>
+      <input class="mc-input" id="in-seed" type="text" placeholder="random" maxlength="24">
+      <div class="btn-row">
+        <button class="mc-btn half" id="btn-gamemode">Game Mode: Survival</button>
+        <button class="mc-btn half" id="btn-difficulty">Difficulty: Normal</button>
+      </div>
+      <div class="mode-desc" id="mode-desc">Search for resources, craft, gain levels, health and hunger.</div>
+      <div class="btn-row">
+        <button class="mc-btn half" id="btn-structures">Generate Structures: ON</button>
+        <button class="mc-btn half" id="btn-bonus">Bonus Chest: OFF</button>
+      </div>
+      <div class="btn-row">
+        <button class="mc-btn half" id="btn-cheats">Allow Commands: OFF</button>
+      </div>
+      <div class="mode-desc" id="cheats-desc">Advancements stay earnable either way.</div>
+    </div>
+    <div class="menu-bottom">
+      <div class="btn-row">
+        <button class="mc-btn half" id="btn-do-create">Create New World</button>
+        <button class="mc-btn half" data-act="worlds">Cancel</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Options -->
+  <section id="screen-options" class="screen hidden">
+    <h2 class="screen-title">Options</h2>
+    <div class="options-grid" id="options-grid"></div>
+    <div class="menu-bottom">
+      <div class="btn-row">
+        <button class="mc-btn half" data-act="controls">Controls...</button>
+        <button class="mc-btn half" id="btn-options-done">Done</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Controls -->
+  <section id="screen-controls" class="screen hidden">
+    <h2 class="screen-title">Controls</h2>
+    <div class="controls-grid" id="controls-grid"></div>
+    <div class="menu-bottom">
+      <div class="btn-row">
+        <button class="mc-btn half" id="btn-reset-keys">Reset to Defaults</button>
+        <button class="mc-btn half" id="btn-controls-done">Done</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pause -->
+  <section id="screen-pause" class="screen dim hidden">
+    <h2 class="screen-title">Game Menu</h2>
+    <div class="menu-col">
+      <button class="mc-btn wide" id="btn-resume">Back to Game</button>
+      <button class="mc-btn wide" data-act="options">Options...</button>
+      <button class="mc-btn wide" id="btn-advancements">Advancements</button>
+      <button class="mc-btn wide" id="btn-howto-pause">How to Play</button>
+      <button class="mc-btn wide" id="btn-backup-now">Download World Backup</button>
+      <button class="mc-btn wide" id="btn-save-quit">Save and Quit to Title</button>
+    </div>
+  </section>
+
+  <!-- Death -->
+  <section id="screen-death" class="screen death hidden">
+    <h2 class="death-title">You Died!</h2>
+    <div class="death-cause" id="death-cause"></div>
+    <div class="death-score" id="death-score">Score: 0</div>
+    <div id="death-location" style="font:15px system-ui"></div>
+    <div class="menu-col">
+      <button class="mc-btn wide" id="btn-respawn">Respawn</button>
+      <button class="mc-btn wide" id="btn-death-title">Title Screen</button>
+    </div>
+  </section>
+
+  <!-- Victory -->
+  <section id="screen-victory" class="screen victory hidden">
+    <div class="victory-scroll" id="victory-scroll"></div>
+    <div class="menu-bottom">
+      <button class="mc-btn wide" id="btn-victory-continue">Continue</button>
+    </div>
+  </section>
+
+  <!-- How to play / About -->
+  <section id="screen-info" class="screen hidden">
+    <h2 class="screen-title" id="info-title">How to Play</h2>
+    <div class="info-body" id="info-body"></div>
+    <div class="menu-bottom">
+      <button class="mc-btn wide" id="btn-info-back">Done</button>
+    </div>
+  </section>
+
+  <!-- Advancements -->
+  <section id="screen-advancements" class="screen hidden">
+    <h2 class="screen-title">Advancements</h2>
+    <div class="adv-sub" id="adv-summary"></div>
+    <div class="adv-body" id="adv-body"></div>
+    <div class="menu-bottom">
+      <button class="mc-btn wide" id="btn-adv-close">Done</button>
+    </div>
+  </section>
+
+  <!-- Loading -->
+  <section id="screen-loading" class="screen loading hidden">
+    <div class="loading-title">Building terrain</div>
+    <div class="loading-track"><div class="loading-fill" id="loading-fill"></div></div>
+    <div class="loading-tip" id="loading-tip"></div>
+  </section>
+
+</div>
+
+<!-- Container screens (inventory / crafting / furnace / chest) are built by ui/containers.js -->
+<div id="container-root" class="hidden"></div>
+<div id="drag-ghost" class="hidden"></div>
+<div id="ui-cursor" class="hidden"></div>
+
+<!-- Sleeping: a cinematic fade with a way out of it -->
+<div id="sleep-fade"></div>
+<div id="sleep-ui" class="hidden">
+  <div class="sleep-msg">Sleeping…</div>
+  <button class="mc-btn wide" id="btn-leave-bed">Leave Bed</button>
+</div>
+<div id="tooltip" class="hidden"></div>
+
+<div id="fatal" class="hidden"><h1>ChugCraft crashed</h1><pre id="fatal-msg"></pre></div>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

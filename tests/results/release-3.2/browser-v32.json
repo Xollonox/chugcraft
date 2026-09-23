@@ -1,0 +1,141 @@
+{
+  "checks": [
+    {
+      "name": "readable nights enabled by default",
+      "pass": true
+    },
+    {
+      "name": "default night lighting is visibly stronger than original",
+      "pass": true
+    },
+    {
+      "name": "night control does not brighten daytime",
+      "pass": true
+    },
+    {
+      "name": "visibility setting does not change gameplay sunlight",
+      "pass": true
+    },
+    {
+      "name": "mobile USE places water source",
+      "pass": true
+    },
+    {
+      "name": "placed water really spreads into levelled flow",
+      "pass": true
+    },
+    {
+      "name": "basin walls contain flowing water",
+      "pass": true
+    },
+    {
+      "name": "empty bucket can select and pick up the source",
+      "pass": true
+    },
+    {
+      "name": "source pickup drains the pool instead of leaving permanent flow",
+      "pass": true
+    },
+    {
+      "name": "placed lava spreads in the live game",
+      "pass": true
+    },
+    {
+      "name": "water/lava source contact creates obsidian",
+      "pass": true
+    },
+    {
+      "name": "flowing shallow water wets feet but not the head",
+      "pass": true
+    },
+    {
+      "name": "flowing lava is treated as lava by player physics",
+      "pass": true
+    },
+    {
+      "name": "oak_door places as two matching halves",
+      "pass": true
+    },
+    {
+      "name": "oak_door opens both halves with mobile USE",
+      "pass": true
+    },
+    {
+      "name": "oak_door closes with mobile USE",
+      "pass": true
+    },
+    {
+      "name": "birch_door places as two matching halves",
+      "pass": true
+    },
+    {
+      "name": "birch_door opens both halves with mobile USE",
+      "pass": true
+    },
+    {
+      "name": "birch_door closes with mobile USE",
+      "pass": true
+    },
+    {
+      "name": "spruce_door places as two matching halves",
+      "pass": true
+    },
+    {
+      "name": "spruce_door opens both halves with mobile USE",
+      "pass": true
+    },
+    {
+      "name": "spruce_door closes with mobile USE",
+      "pass": true
+    },
+    {
+      "name": "oak_gate opens via mobile USE",
+      "pass": true
+    },
+    {
+      "name": "oak_trapdoor opens via mobile USE",
+      "pass": true
+    },
+    {
+      "name": "closed doors collide with panels, not invisible full cubes",
+      "pass": true
+    },
+    {
+      "name": "connected windows use thin collision matching the mesh",
+      "pass": true
+    },
+    {
+      "name": "worker builds all new geometry without errors",
+      "pass": true
+    },
+    {
+      "name": "night visibility survives all three shader packs and vanilla",
+      "pass": true
+    },
+    {
+      "name": "showcase world exports through the backup validator",
+      "pass": true
+    },
+    {
+      "name": "new building blocks and door material survive reload",
+      "pass": true
+    },
+    {
+      "name": "fountain source and waterfall levels survive reload",
+      "pass": true
+    },
+    {
+      "name": "night visibility setting persists across world reload",
+      "pass": true
+    },
+    {
+      "name": "repeated source/menu changes remain playable with bounded work",
+      "pass": true
+    },
+    {
+      "name": "no browser runtime/console errors",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

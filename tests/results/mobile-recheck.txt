@@ -1,0 +1,15 @@
+--- mobile/touch ---
+PASS  touch mode auto-detected on a touch device
+PASS  world created via taps
+PASS  touch UI appears in gameplay
+PASS  joystick registers forward push ({"x":0,"z":-1})
+PASS  player walked with the joystick (1.20 blocks)
+PASS  joystick release stops movement
+PASS  look drag turns the camera (dyaw=-0.720)
+PASS  hold-to-mine presses and releases attack
+PASS  jump button presses jump
+PASS  sneak button toggles on
+PASS  inventory button opens inventory
+PASS  touch UI hides while a container is open
+PASS  no console/page errors on touch
+ALL SMOKE TESTS PASSED

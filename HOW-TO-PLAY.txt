@@ -1,0 +1,94 @@
+CHUGCRAFT 3.0
+
+Start with START-HERE.md for installation, mobile controls, enchanting, repairs, brewing and backups.
+
+===============================================================
+  CRAFTVERSE
+  A complete, beatable voxel survival game that runs in your
+  browser. Punch a tree, and don't stop until the dragon is dead.
+===============================================================
+
+
+HOW TO START
+------------
+
+  Windows      double-click  PLAY-WINDOWS.bat
+  Mac          double-click  PLAY-MAC-LINUX.command
+  Linux        run           sh PLAY-MAC-LINUX.command
+
+That opens the game in your browser. Keep the little black window
+open while you play -- closing it stops the game.
+
+First time only: if it tells you Node.js is missing, grab it free
+from https://nodejs.org (pick "LTS"), install it, and double-click
+again. That's the only setup there is.
+
+Why does it need that? The game is 100% offline and there is no
+server doing anything -- but browsers refuse to load a game of this
+size straight off your hard drive, so this runs a tiny local file
+server just for you. Nothing is uploaded. Nothing phones home.
+You can play with your Wi-Fi off.
+
+
+CONTROLS
+--------
+
+  WASD .................. move
+  Space ................. jump
+  Shift ................. sneak (won't walk off ledges)
+  Ctrl / double-tap W ... sprint
+  Left click ............ mine (hold) / attack
+  Right click ........... place / use / interact
+  1-9, mouse wheel ...... hotbar
+  F ..................... swap main hand and off hand
+  E ..................... inventory
+  Q ..................... drop
+  F3 .................... debug overlay
+  F5 .................... first / third person
+  T or / ................ chat and commands
+  Esc ................... pause
+
+Everything is rebindable in Options -> Controls.
+
+
+HOW TO WIN
+----------
+
+ 1. Punch TREES     -> planks -> sticks -> crafting table -> wooden pickaxe
+ 2. Mine STONE      -> stone tools -> furnace. Cook meat, smelt iron.
+ 3. Dig deep. Iron sits mid-depth. DIAMONDS only spawn near bedrock
+    (y 5-15). Bring torches, and watch for lava down there.
+ 4. Diamond pickaxe -> mine OBSIDIAN (pour a water bucket on lava).
+ 5. Build a 4x5 obsidian frame, light it with FLINT AND STEEL
+    (iron ingot + flint -- flint drops from gravel).
+ 6. In the NETHER, find a fortress and kill BLAZES for blaze rods.
+ 7. Kill ENDERMEN for ender pearls. Look one right in the eye to
+    make it angry.
+ 8. Craft EYES OF ENDER (blaze powder + ender pearl). Throw one,
+    follow it, dig down to the STRONGHOLD.
+ 9. Fill all 12 end portal frames and jump in.
+10. In the End, destroy all ten END CRYSTALS first -- they heal the
+    dragon faster than you can hurt it -- then kill the dragon.
+
+A practised run takes about 30-60 minutes. Your worlds save
+automatically to your own browser.
+
+
+NEEDS
+-----
+
+Any reasonably modern browser with WebGL2: Chrome, Edge, Firefox
+or Safari. Works offline once it's running.
+
+
+ABOUT THE ART AND SOUND
+-----------------------
+
+Every block texture, item icon and sound effect in this game is
+generated from scratch by code when it loads -- nothing is
+downloaded, sampled or copied. The textures are painted pixel by
+pixel into a canvas; the sounds are synthesised from noise and
+oscillators; even the font is built at runtime.
+
+Not affiliated with, endorsed by, or containing any assets from
+Mojang or Microsoft.

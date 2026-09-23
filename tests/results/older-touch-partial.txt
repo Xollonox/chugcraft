@@ -1,0 +1,25 @@
+--- touch regressions ---
+PASS  hotbar renders 9 slots (9)
+PASS  every hotbar slot selectable by touch (3,6,1,8,0)
+PASS  HUD sits above the look layer in touch mode (z-index 50)
+PASS  test cow is in the crosshair (hp 10)
+PASS  cow stays put in the crosshair
+PASS  tap on the world attacks a mob in reach (10 -> 9)
+PASS  holding repeats the attack (9 -> 8)
+PASS  tap with no entity in reach still safe (state playing)
+PASS  no page errors during touch regressions ()
+--- desktop hotbar ---
+PASS  number keys pick hotbar slots (2,6,0)
+PASS  mouse wheel changes hotbar slot (now 1)
+PASS  old window.craftverse handle still points at the game
+PASS  page title renamed (ChugCraft)
+PASS  no page errors on desktop ()
+--- 45s randomised touch soak ---
+PASS  soak ran a decent number of actions (21)
+PASS  joystick fed the input layer ([-0.5605664119074034,null])
+PASS  game still alive after soak (state playing)
+PASS  player did not fall out of the world (y 63.0)
+PASS  player actually moved during soak (6 of 21 samples)
+PASS  soak produced no errors ()
+
+ALL V2 TESTS PASSED

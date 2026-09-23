@@ -1,0 +1,25 @@
+{
+  "name": "craftverse",
+  "version": "3.2.0",
+  "description": "ChugCraft 3.2 \u2014 flowing liquids, cottage building and brighter nights",
+  "type": "module",
+  "scripts": {
+    "start": "node serve.js",
+    "dev": "node serve.js",
+    "test": "node --test tests/core.test.mjs && node --import ./tests/node-three.mjs --test tests/husbandry.test.mjs && node --test tests/building.test.mjs",
+    "test:browser": "node tests/browser-v3.mjs && node tests/browser-v31.mjs && node tests/browser-v32.mjs",
+    "test:legacy": "node tests/browser-graphics.mjs && node tests/browser-touch.mjs",
+    "test:mobile": "node tests/browser-mobile.mjs",
+    "test:building": "node --test tests/building.test.mjs"
+  },
+  "keywords": [
+    "voxel",
+    "game",
+    "threejs",
+    "webgl"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "three": "^0.169.0"
+  }
+}

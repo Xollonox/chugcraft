@@ -1,0 +1,12 @@
+{
+  "crop": [
+    240,
+    175,
+    780,
+    365
+  ],
+  "originalMeanLuma": 32.86978557504873,
+  "readableMeanLuma": 47.33148148148148,
+  "ratio": 1.43996928040232,
+  "note": "Specific synthetic scene, not an all-device brightness guarantee."
+}

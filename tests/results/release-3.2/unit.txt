@@ -1,0 +1,87 @@
+
+> craftverse@3.2.0 test
+> node --test tests/core.test.mjs && node --import ./tests/node-three.mjs --test tests/husbandry.test.mjs && node --test tests/building.test.mjs
+
+✔ gold nugget conversion conserves material (1.271019ms)
+✔ all recipe outputs and ingredients are registered (0.381489ms)
+✔ new stations craft with exact grid patterns (0.51842ms)
+✔ failed full-bag exchange is atomic (0.699704ms)
+✔ exchange can reuse a freed ingredient slot (0.196686ms)
+✔ partial stack capacity detected before crafting (0.194659ms)
+✔ enchant consumes resources and preserves wear percentage (0.340444ms)
+✔ higher enchant tiers require shelves, cap at III (0.32472ms)
+✔ enchant insufficient levels/resources never modifies equipment (0.253712ms)
+✔ bookshelf count requires air gap (0.392119ms)
+✔ repair preserves enchanted key and charges a material+level (0.288613ms)
+✔ undamaged repairs are refused without costs (0.150895ms)
+✔ brew water into awkward and all five potions (0.471002ms)
+✔ brewing with missing ingredients is atomic (0.7226ms)
+✔ upgrade keys and durability roundtrip through inventory saves (0.781538ms)
+✔ invalid selected slot clamps safely (0.137812ms)
+✔ all block texture references have authored painters (41.215541ms)
+✔ fortresses supply nether wart without relying on random loot (0.756889ms)
+✔ backup roundtrip preserves save data (0.80387ms)
+✔ malformed backups and invalid block IDs rejected (0.643603ms)
+✔ negative counts, unsafe properties and nonfinite positions rejected (0.410052ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 138.543712
+✔ wheat grows through every stage on watered farmland and stops when mature (1.962753ms)
+✔ dry wheat grows slower and dark wheat not at all (0.33366ms)
+✔ crops without soil pop off, farmland dries without water and grass spreads (0.243301ms)
+✔ nether wart only grows on soul sand (0.178069ms)
+✔ planting rules: seeds need farmland, wart needs soul sand, saplings need earth (0.193004ms)
+✔ hoe tills grass, dirt and paths only when the top is clear (0.148437ms)
+✔ sapling grows into a whole tree and refuses under a low roof (0.418795ms)
+✔ sugar cane and cactus grow to three tall (0.133374ms)
+✔ bone meal forces a growth step, decorates lawns, does nothing to stone (0.35911ms)
+✔ random ticker only touches loaded columns and reports changes (10.698359ms)
+✔ fishing loot rolls fish most often and every entry is a real item (2.466531ms)
+✔ breeding food and taming tables reference real items and passive mobs (0.295399ms)
+✔ every villager profession offers five valid trades (0.206678ms)
+✔ mob save records round-trip babies, taming, wool and profession (0.417173ms)
+✔ backups accept mob records and still reject malformed ones (1.209491ms)
+✔ new stage blocks are registered with drops and painters (0.127776ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 173.330841
+✔ water levels spread seven cells on floor and stop, queue goes idle (6.782779ms)
+✔ lava spreads only three cells and is slower (1.103093ms)
+✔ fluid obeys a closed basin rather than flooding through its walls (1.367099ms)
+✔ opening a wall wakes adjacent fluid and fills the new passage (3.03553ms)
+✔ waterfall prefers down, then spreads along floor (3.636412ms)
+✔ blocking a waterfall makes it spread at the obstruction (6.720801ms)
+✔ source pickup makes all unsupported horizontal flow recede (4.144009ms)
+✔ removing waterfall source drains column and pool (4.100112ms)
+✔ removing one source keeps streams supplied by another (3.832436ms)
+✔ lava sources touching water become obsidian in either placement order (4.79157ms)
+✔ flowing lava touching water makes cobblestone, diagonal contact does not (1.746831ms)
+✔ flow never climbs upward or overwrites furniture (2.07344ms)
+✔ unloaded columns are not mutated, resume after load (2.137527ms)
+✔ simulation work capped per frame and dimension reset drops old queue (0.300385ms)
+✔ night visibility gives brighter nights with zero daytime change (0.782929ms)
+✔ night visibility is clamped and still works in rain (0.146696ms)
+✔ birch/spruce doors toggle both orientations and preserve material (0.108423ms)
+✔ panes join adjacent walls and panes into thin continuous windows (0.335063ms)
+✔ fences connect rails to walls; lanterns have narrow bodies (0.130099ms)
+✔ gates/trapdoors toggle, orient and release collision when open (0.163086ms)
+✔ all new building recipes match exact grids without shadowing (0.649917ms)
+✔ source and flow block IDs survive real backup encoding without extra metadata (1.417823ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 126.087511

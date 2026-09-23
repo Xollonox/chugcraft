@@ -1,0 +1,42 @@
+PASS hoe tills grass into farmland from mobile USE
+PASS tilling wears the hoe
+PASS seeds refuse plain grass
+PASS seeds plant on farmland as a seedling
+PASS three bone meal grow seedling to mature wheat
+PASS growth does not crash advancements
+PASS live random ticks grow a wheat field
+PASS sapling plants on grass
+PASS bone meal grows sapling into a tree with leaves
+PASS feeding a cow wheat puts it in love mode
+PASS two cows in love breed a baby
+PASS breeding resets love, starts cooldown and unlocks Husbandry
+PASS baby is small and takes time to grow
+PASS baby grows into an adult
+PASS taming can fail and still consumes the bone
+PASS bone tames the wolf and unlocks Best Friends Forever
+PASS clicking a tamed wolf makes it sit
+PASS clicking again makes it follow
+PASS hitting your own wolf never makes it hostile
+PASS far-away tamed wolf teleports back to its owner
+PASS shears drop wool and wear down
+PASS a sheared sheep gives nothing until wool regrows
+PASS wool regrows after its timer
+PASS trade screen shows the villager profession
+PASS librarian sells emeralds for paper
+PASS naturally spawned villagers get varied professions
+PASS fishing rod casts a bobber
+PASS bobber lands and floats in water
+PASS reeling in early catches nothing
+PASS reeling on a bite lands loot, wears the rod and unlocks Fishy Business
+PASS subtitles caption sounds with a direction arrow
+PASS subtitles stay quiet when disabled
+PASS tamed sitting wolf survives save/reload
+PASS baby cow keeps its hp and size after reload
+PASS sheared sheep remembers its regrow timer
+PASS villager keeps its profession after reload
+PASS mob records pass the backup validator
+PASS unknown mob record is ignored on load
+PASS world still playable after all 3.1 interactions
+PASS no page errors (0)
+
+40/40 passed
